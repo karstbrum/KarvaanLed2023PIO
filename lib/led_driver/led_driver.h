@@ -1,5 +1,5 @@
-#ifndef LEDSTATES_H
-#define LEDSTATES_H
+#ifndef LED_DRIVER_H
+#define LED_DRIVER_H
  
 #if ARDUINO >= 100
 #include "Arduino.h"

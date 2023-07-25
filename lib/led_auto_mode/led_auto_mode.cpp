@@ -4,7 +4,7 @@
 #include "WProgram.h"
 #endif
 
-#include "LEDdifferentsizes.h"
+#include "led_auto_mode.h"
 #include <cmath>
 #include <cstdlib> 
 #include <ctime>
@@ -249,7 +249,7 @@ void Pixels::pulseFadeColor(uint8_t color1, uint8_t color2, bool fade, float onV
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES];
+    uint8_t pixelsPerCluster[MAXSIDES_L];
     if (numClusters_ == 0) {
         numClusters = numSides;
         for (uint8_t k = 0; k < numClusters; k++) {
@@ -326,7 +326,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES];
+    uint8_t pixelsPerCluster[MAXSIDES_L];
     if (numClusters_ == 0) {
         numClusters = numSides;
         for (uint8_t k = 0; k < numClusters; k++) {
@@ -468,8 +468,8 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES];
-    float clusterPhase[MAXSIDES];
+    uint8_t pixelsPerCluster[MAXSIDES_L];
+    float clusterPhase[MAXSIDES_L];
 
     if (numClusters_ == 0) {
         numClusters = numSides;
@@ -631,7 +631,7 @@ void Pixels::travelSides(uint8_t colorIndex, bool fade, float onValue, int direc
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES];
+    uint8_t pixelsPerCluster[MAXSIDES_L];
     if (numClusters_ == 0) {
         numClusters = numSides;
         for (uint8_t k = 0; k < numClusters; k++) {
@@ -753,7 +753,7 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES];
+    uint8_t pixelsPerCluster[MAXSIDES_L];
     if (numClusters_ == 0) {
         numClusters = numSides;
         for (uint8_t k = 0; k < numClusters; k++) {
@@ -774,8 +774,8 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
 
     float Ts_ = Ts;
     // change for different unit
-    static float startPositions[MAXSIDES] = { };
-    static bool activateCluster[MAXSIDES] = { };
+    static float startPositions[MAXSIDES_L] = { };
+    static bool activateCluster[MAXSIDES_L] = { };
 
     pulseIndex += ((Ts_ / 1000) * (BPM / 60)) / 2 / freqdiv; // Ts*BPS (s^1 * s^-1)
     pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;

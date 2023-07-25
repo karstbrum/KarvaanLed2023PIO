@@ -4,7 +4,7 @@
 #include "WProgram.h"
 #endif
 
-#include "LEDStates.h"
+#include "led_driver.h"
 
 Strips::Strips() {
 }

@@ -1,5 +1,5 @@
-#ifndef PWMBULBS_H
-#define PWMBULBS_H
+#ifndef BULB_DRIVER_H
+#define BULB_DRIVER_H
  
 #if ARDUINO >= 100
 #include "Arduino.h"

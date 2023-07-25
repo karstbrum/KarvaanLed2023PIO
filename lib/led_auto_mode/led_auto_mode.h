@@ -1,5 +1,5 @@
-#ifndef LEDSTATESDIFFERTSIZES_H
-#define LEDSTATESDIFFERTSIZES_H
+#ifndef LED_AUTO_MODE_H
+#define LED_AUTO_MODE_H
  
 #if ARDUINO >= 100
 #include "Arduino.h"
@@ -8,15 +8,14 @@
 #endif
 
 #include "Adafruit_NeoPixel.h"
-#include "LEDStates.h"
+#include "led_driver.h"
 #include <math.h>
 #include <cstdlib> 
 #include <ctime>
 #include <random>
 
-#define PI 3.14159265
 #define INCREMENT 0.01
-#define MAXSIDES 50
+#define MAXSIDES_L 50
 
 class Pixels {
 
@@ -43,16 +42,16 @@ class Pixels {
 
         // pulsating modes
         void pulseSameColor(uint8_t colorIndex, bool fade = 0, float onValue = 0.4);
-        void pulseFadeColor(uint8_t color1, uint8_t color2, bool fade = 0, float onValue = 0.4, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES] = {});
+        void pulseFadeColor(uint8_t color1, uint8_t color2, bool fade = 0, float onValue = 0.4, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {});
         void pulseToOtherColor(bool random = 0, bool fade = 0, float onValue = 0.4);
 
         // travelling sides
-        void travelSides(uint8_t colorIndex, bool fade = 0, float onValue = 0.6, int direction = 1, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES] = {}, 
+        void travelSides(uint8_t colorIndex, bool fade = 0, float onValue = 0.6, int direction = 1, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {}, 
             bool overlapColor = 0, bool randomCluster = 0);
 
         // some pixels up and down
-        void upDown(float tailLength, uint8_t colorIndex, bool fastUpDown = 0, bool fastOnlyUpDown = 0, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES] = {},
-            bool setDirection = 0, int direction_[MAXSIDES] = {}, bool inverse = 0, bool setPhase = 0, float phase[MAXSIDES] = {}, int inverseDirection = 1);
+        void upDown(float tailLength, uint8_t colorIndex, bool fastUpDown = 0, bool fastOnlyUpDown = 0, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {},
+            bool setDirection = 0, int direction_[MAXSIDES_L] = {}, bool inverse = 0, bool setPhase = 0, float phase[MAXSIDES_L] = {}, int inverseDirection = 1);
 
         // full wave through letters
         void travelingWave(uint8_t colorIndex, float numOfSines = 4, int direction = 1, float offset = 0);
@@ -62,11 +61,11 @@ class Pixels {
 
         // both up and down at the same time
         void fillBoth(uint8_t colorIndex, float startPos = 0.5, float lightSize = 0.2, uint8_t flashChance = 100, bool randPos = 0, 
-            uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES] = {}, bool inverse = 0);
+            uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {}, bool inverse = 0);
 
         // fill up and empty
         void fillUp(uint8_t colorIndex, bool fastUpDown = 0, bool fastOnlyUpDown = 0, 
-            uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES] = {}, bool setDirection = 0, int direction_[MAXSIDES] = {}, bool setPhase = 0, float phase[MAXSIDES] = {},
+            uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {}, bool setDirection = 0, int direction_[MAXSIDES_L] = {}, bool setPhase = 0, float phase[MAXSIDES_L] = {},
             int inverseDirection = 1);
 
         // variables

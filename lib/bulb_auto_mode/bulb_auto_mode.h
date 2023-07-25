@@ -1,5 +1,5 @@
-#ifndef PWMBULBGROUPS_H
-#define PWMBULBGROUPS_H
+#ifndef BULB_AUTO_MODE_H
+#define BULB_AUTO_MODE_H
  
 #if ARDUINO >= 100
 #include "Arduino.h"
@@ -7,12 +7,11 @@
 #include "WProgram.h"
 #endif
 
-#include "PWMBulbs.h"
+#include "bulb_driver.h"
 #include <math.h>
 
-#define PI 3.14159265
 #define INCREMENT 0.01
-#define MAXSIDES 10
+#define MAXSIDES_B 10
 
 class Bulbgroups {
 
@@ -38,8 +37,8 @@ class Bulbgroups {
         void pulse(bool fade = 1, float onValue = 0.4);
 
         // group of lights up and down
-        void upDown(uint8_t tailLength, bool dimTail = 1, bool fastUpDown = 0, bool fastOnlyUpDown = 0, bool setDirection = 0, int direction_[MAXSIDES] = {},
-            bool setPhase = 0, float phase[MAXSIDES] = {});
+        void upDown(uint8_t tailLength, bool dimTail = 1, bool fastUpDown = 0, bool fastOnlyUpDown = 0, bool setDirection = 0, int direction_[MAXSIDES_B] = {},
+            bool setPhase = 0, float phase[MAXSIDES_B] = {});
 
         // propogating wave
         void travelingWave(float numOfSines = 1, int direction = 1, float offset = 0);

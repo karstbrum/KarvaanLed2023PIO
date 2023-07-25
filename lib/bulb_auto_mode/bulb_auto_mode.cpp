@@ -4,7 +4,7 @@
 #include "WProgram.h"
 #endif
 
-#include "PWMBulbgroups.h"
+#include "bulb_auto_mode.h"
 #include <cmath>
 #include <cstdlib> 
 
@@ -86,8 +86,8 @@ void Bulbgroups::pulse(bool fade, float onValue) {
 }
 
 // move amount of bulbs down per side
-void Bulbgroups::upDown(uint8_t tailLength, bool dimTail, bool fastUpDown, bool fastOnlyUpDown, bool setDirection, int direction_[MAXSIDES],
-    bool setPhase, float phase_[MAXSIDES]) {
+void Bulbgroups::upDown(uint8_t tailLength, bool dimTail, bool fastUpDown, bool fastOnlyUpDown, bool setDirection, int direction_[MAXSIDES_B],
+    bool setPhase, float phase_[MAXSIDES_B]) {
 
     float Ts_ = Ts;
 

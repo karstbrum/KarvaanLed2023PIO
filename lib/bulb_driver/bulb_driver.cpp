@@ -4,7 +4,7 @@
 #include "WProgram.h"
 #endif
 
-#include "PWMBulbs.h"
+#include "bulb_driver.h"
 
 
 Bulbs::Bulbs(uint8_t Bulbpins_[], uint8_t numCombinations_, uint8_t BulbsPerCombination_[]){
