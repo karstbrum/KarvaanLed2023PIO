@@ -38,15 +38,15 @@ void stateSpace::setDynamics(float fallTime, float riseTime, float Ts){
     // determine A based on Samples A^n = 0.1, A = n(sqrt(0.1))
     A = pow(0.1, 1/fallSamples);
     
-    // find rise time, simple equations which requires a small for loop or approximation
-    // b = 0.9 / sum(a^(p-1)) for p = 1:riseSamples
+    // find rise time (full bright), simple equations which requires a small for loop or approximation
+    // b = 1 / sum(a^(p-1)) for p = 1:riseSamples
     // for loop method, does not need to be fast since only set on mode switch
     float sum_A = 1;
     for (uint8_t k = 1;k < riseSamples;k++) {
         sum_A += pow(A,k);
     }; 
 
-    B = 0.9/sum_A;
+    B = 1/sum_A;
 
     // do not touch C for simple system
     C = 1;
