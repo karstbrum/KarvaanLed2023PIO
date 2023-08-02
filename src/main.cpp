@@ -1,5 +1,11 @@
 #include <Arduino.h>
 
+// own libraries
+#include "bulb_auto_mode.h"
+#include "led_auto_mode.h"
+#include "ps3_interpreter.h"
+
+
 // ps3 controller library
 #include <Ps3Controller.h>
 
@@ -99,8 +105,12 @@ void LEDTaskcode( void * pvParameters ){
   // another option to have a timed loop is to use vTaskDelayUntil(), have to look into it first
   for(;;){
     if(millis()-loopTime >= Ts){
-      //Serial.println(millis()-loopTime);
+
       loopTime = millis();
+      // get states from controller if active
+
+      // else get states from auto mode
+
     }
     // make space for idle task by 1ms delay, make sure esp does not crash
     // don't allow delay at the start of next iteration, delay_ms ms max

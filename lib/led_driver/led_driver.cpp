@@ -5,6 +5,7 @@
 #endif
 
 #include "led_driver.h"
+#include <math.h>
 
 Strips::Strips() {
 }
@@ -22,22 +23,65 @@ void Strips::show() {
     LED->show();
 }
 
+stateSpace::stateSpace() {
+};
+
+void stateSpace::setDynamics(float fallTime, float riseTime, float Ts){
+    
+    // set A and B based on fallTime and riseTime
+    // A is just quadratic decay
+    // fallTime is the time to reach 10% of initial value
+    // for unit input: A^n = 0.1, calculate n, round up to integer
+    float fallSamples = ceil(fallTime / Ts);
+    float riseSamples = floor(riseTime / Ts);
+
+    // determine A based on Samples A^n = 0.1, A = n(sqrt(0.1))
+    A = pow(0.1, 1/fallSamples);
+    
+    // find rise time, simple equations which requires a small for loop or approximation
+    // b = 0.9 / sum(a^(p-1)) for p = 1:riseSamples
+    // for loop method, does not need to be fast since only set on mode switch
+    float sum_A = 1;
+    for (uint8_t k = 1;k < riseSamples;k++) {
+        sum_A += pow(A,k);
+    }; 
+
+    B = 0.9/sum_A;
+
+    // do not touch C for simple system
+    C = 1;
+
+};
+
+void stateSpace::updateStates(float u, float x_max){
+
+    // basic state space
+    x = A*x_prev + B*u;
+    y = C*x;
+
+    // not limited in output, not in states
+    x = (x>x_max) ? x_max : x;
+    // set previous state for next iteration
+    x_prev = x;
+
+};
+
 RGBW::RGBW(uint8_t LEDsPerPin_[], uint8_t LEDpins_[], uint8_t numPins_){
 
-    // define strips
-    // Strip 1
-
+    // get total number of LEDS
     numLEDs = 0;
     numPins = numPins_;
     
+    // loop through different connected strips and setup
     for (uint8_t k = 0;k < numPins;k++) {
         numLEDs += LEDsPerPin_[k];
         LEDsPerPin[k] = LEDsPerPin_[k];
         LEDPins[k] = LEDpins_[k];
         strip[k].setupStrip(LEDsPerPin[k], LEDPins[k]);
     }
-    
+
     // standard dimmer off, have to set in main code
+    // dimmer is the max brightness, extradimmer is meant for setting certain modes
     dimmer = 0;
     prevDimmer = 0;
 
@@ -84,10 +128,13 @@ void RGBW::setColorsIndividualFixed(int k, uint8_t color, float extraDim) {
 
 void RGBW::setColorsIndividual(int k, float white, float red, float green, float blue, float extraDimmer) {
 
-    RGBWStates[k][0] = static_cast<uint8_t>(dimmer * extraDimmer * white);
-    RGBWStates[k][1] = static_cast<uint8_t>(dimmer * extraDimmer * red);
-    RGBWStates[k][2] = static_cast<uint8_t>(dimmer * extraDimmer * green);
-    RGBWStates[k][3] = static_cast<uint8_t>(dimmer * extraDimmer * blue);
+    // feed the input (dimmer * extraDimmer) to the statespace as input
+    dynamicStates[k].updateStates(dimmer * extraDimmer, dimmer);
+
+    RGBWStates[k][0] = static_cast<uint8_t>(dynamicStates[k].y * white);
+    RGBWStates[k][1] = static_cast<uint8_t>(dynamicStates[k].y * red);
+    RGBWStates[k][2] = static_cast<uint8_t>(dynamicStates[k].y * green);
+    RGBWStates[k][3] = static_cast<uint8_t>(dynamicStates[k].y * blue);
 
     colorCode[k] = (RGBWStates[k][0] << 24) |
         (RGBWStates[k][1] << 16) |
@@ -141,17 +188,8 @@ void RGBW::setRangeColorFade(uint16_t startLED, uint16_t endLED, uint8_t startCo
 
 
 void RGBW::setStrip() {
-
-    /*
-    for (uint16_t k = 0; k < LEDsPerPin[0]; k++) {             // For each pixel in strip...
-
-        strip[0].setPixel(k, colorCode[k]);        //  Set pixel's color 
-    };
-    strip[0].show();
-    */
     
-
-  
+    // loop through states of all pixels
     uint16_t pixelIndex = 0;
 
     for (uint8_t k = 0; k < numPins; k++) {           // for each strip      
@@ -165,6 +203,10 @@ void RGBW::setStrip() {
         strip[k].show();      //  Set strip
     };
     
+};
+
+// nested function for updating dynamics
+void RGBWsetDynamics(float fallTime, float riseTime, uint8_t order, float frequency, float damping){
 
 
 };

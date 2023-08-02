@@ -7,7 +7,7 @@
 #include "WProgram.h"
 #endif
 
-#include "Adafruit_NeoPixel.h"
+//#include "Adafruit_NeoPixel.h"
 #include "led_driver.h"
 #include <math.h>
 #include <cstdlib> 
