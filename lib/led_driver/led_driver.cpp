@@ -36,7 +36,7 @@ void stateSpace::setDynamics(float fallTime, float riseTime, float Ts){
     float riseSamples = floor(riseTime / Ts);
 
     // determine A based on Samples A^n = 0.1, A = n(sqrt(0.1))
-    A = pow(0.1, 1/fallSamples);
+    A = pow(FALLTIME, 1/fallSamples);
     
     // find rise time (full bright), simple equations which requires a small for loop or approximation
     // b = 1 / sum(a^(p-1)) for p = 1:riseSamples
@@ -46,7 +46,7 @@ void stateSpace::setDynamics(float fallTime, float riseTime, float Ts){
         sum_A += pow(A,k);
     }; 
 
-    B = 1/sum_A;
+    B = RISETIME/sum_A;
 
     // do not touch C for simple system
     C = 1;

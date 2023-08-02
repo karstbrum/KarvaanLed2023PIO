@@ -14,6 +14,9 @@
 #define MAXNUMPIXELS 500
 #define MAXSIDES 50
 
+#define RISETIME 1
+#define FALLTIME 0.1
+
 class Strips {
 
     public:
