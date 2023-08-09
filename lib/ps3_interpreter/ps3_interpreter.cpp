@@ -117,42 +117,92 @@ void controller_callbacks(){
         ctrl.controller_states[SELECT] = 0;
     };
 
-    // triggers 1 is bumpler, 2 is trigger
+    // trigger and bumper 1 is bumpler, 2 is trigger
     if( abs(Ps3.event.analog_changed.button.l1) ){
-        if(Ps3.data.analog.button.l1 >0){
-            Serial.println("l1");
+        if(Ps3.data.analog.button.l1 >0 && ctrl.combination_parser(L_BUMPER)){
+            ctrl.controller_toggle[L_BUMPER] = true;
+            ctrl.controller_states[L_BUMPER] = 1;
+        } else {
+            ctrl.controller_toggle[L_BUMPER] = false;
+            ctrl.controller_states[L_BUMPER] = 0;
         };
     };
     if( abs(Ps3.event.analog_changed.button.r1) ){
-        Serial.print("Pressing the right trigger button: ");
-        Serial.println(Ps3.data.analog.button.r2, DEC);
+        if(Ps3.data.analog.button.r1 >0 && ctrl.combination_parser(R_BUMPER)){
+            ctrl.controller_toggle[R_BUMPER] = true;
+            ctrl.controller_states[R_BUMPER] = 1;
+        } else {
+            ctrl.controller_toggle[R_BUMPER] = false;
+            ctrl.controller_states[R_BUMPER] = 0;
+        };
     };
-
     if( abs(Ps3.event.analog_changed.button.l2) ){
-        Serial.print("Pressing the left trigger button: ");
-        Serial.println(Ps3.data.analog.button.l2, DEC);
+        if(Ps3.data.analog.button.l2 >0 && ctrl.combination_parser(L_TRIGGER)){
+            ctrl.controller_toggle[L_TRIGGER] = true;
+            ctrl.controller_states[L_TRIGGER] = Ps3.data.analog.button.l2;
+        } else {
+            ctrl.controller_toggle[L_TRIGGER] = false;
+            ctrl.controller_states[L_TRIGGER] = 0;
+        };
     };
-
     if( abs(Ps3.event.analog_changed.button.r2) ){
-        Serial.print("Pressing the right trigger button: ");
-        Serial.println(Ps3.data.analog.button.r2, DEC);
+        if(Ps3.data.analog.button.l2 >0 && ctrl.combination_parser(R_TRIGGER)){
+            ctrl.controller_toggle[R_TRIGGER] = true;
+            ctrl.controller_states[R_TRIGGER] = Ps3.data.analog.button.l2;
+        } else {
+            ctrl.controller_toggle[R_TRIGGER] = false;
+            ctrl.controller_states[R_TRIGGER] = 0;
+        };
     };
 
-    // bumpers
-
-
-    // sticks
+    // sticks logic for X and Y is same, so just use X for both X and Y
     if( abs(Ps3.event.analog_changed.stick.lx) + abs(Ps3.event.analog_changed.stick.ly) > 2 ){
-       if(ctrl.combination_parser(SELECT)){
-            ctrl.controller_toggle[SELECT] = true;
-            ctrl.controller_states[SELECT] = 1;
+        if(abs(Ps3.data.analog.stick.lx)+abs(Ps3.data.analog.stick.ly)>2 && ctrl.combination_parser(L_STICK_X)){
+            ctrl.controller_toggle[L_STICK_X] = true;
+            ctrl.controller_states[L_STICK_X] = Ps3.data.analog.stick.lx;
+            ctrl.controller_toggle[L_STICK_Y] = true;
+            ctrl.controller_states[L_STICK_Y] = Ps3.data.analog.stick.ly;
+        } else {
+            ctrl.controller_toggle[L_STICK_X] = false;
+            ctrl.controller_states[L_STICK_X] = 0;
+            ctrl.controller_toggle[L_STICK_Y] = false;
+            ctrl.controller_states[L_STICK_Y] = 0;
         };
     };
     if( abs(Ps3.event.analog_changed.stick.rx) + abs(Ps3.event.analog_changed.stick.ry) > 2 ){
-       Serial.println(Ps3.data.analog.stick.rx);
-       Serial.println(Ps3.data.analog.stick.rx);
+        if(abs(Ps3.data.analog.stick.rx)+abs(Ps3.data.analog.stick.ry)>2 && ctrl.combination_parser(R_STICK_X)){
+            ctrl.controller_toggle[R_STICK_X] = true;
+            ctrl.controller_states[R_STICK_X] = Ps3.data.analog.stick.rx;
+            ctrl.controller_toggle[R_STICK_Y] = true;
+            ctrl.controller_states[R_STICK_Y] = Ps3.data.analog.stick.ry;
+        } else {
+            ctrl.controller_toggle[R_STICK_X] = false;
+            ctrl.controller_states[R_STICK_X] = 0;
+            ctrl.controller_toggle[R_STICK_Y] = false;
+            ctrl.controller_states[R_STICK_Y] = 0;
+        };
     };
 
-    
+    // stick press l3 and r3
+    if (Ps3.event.button_up.l3){
+        if(ctrl.combination_parser(L_STICK_PRESS)){
+            ctrl.controller_toggle[L_STICK_PRESS] = true;
+            ctrl.controller_states[L_STICK_PRESS] = 1;
+        };
+    };
+    if (Ps3.event.button_down.start){
+        ctrl.controller_toggle[L_STICK_PRESS] = false;
+        ctrl.controller_states[L_STICK_PRESS] = 0;
+    };
+    if (Ps3.event.button_up.r3){
+        if(ctrl.combination_parser(R_STICK_PRESS)){
+            ctrl.controller_toggle[R_STICK_PRESS] = true;
+            ctrl.controller_states[R_STICK_PRESS] = 1;
+        };
+    };
+    if (Ps3.event.button_down.start){
+        ctrl.controller_toggle[R_STICK_PRESS] = false;
+        ctrl.controller_states[R_STICK_PRESS] = 0;
+    };
 
 };

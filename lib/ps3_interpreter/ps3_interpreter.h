@@ -26,7 +26,7 @@
 #define L_TRIGGER 11
 #define R_TRIGGER 11
 #define L_BUMPER 12
-#define R_BUMPER12 13
+#define R_BUMPER 13
 #define L_STICK_X 14
 #define L_STICK_Y 15
 #define R_STICK_X 16
