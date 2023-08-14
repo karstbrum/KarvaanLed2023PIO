@@ -25,7 +25,7 @@ class Pixels {
 
         // display current color
         void activateColor();
-
+ 
         // set color
         void setColor(uint8_t colorIndex);
 

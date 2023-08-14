@@ -18,6 +18,9 @@ TaskHandle_t LEDTask;
 // Time spent in the main loop
 int loopTime = 0;
 
+// select auto mode or controller
+bool auto_mode = false;
+
 void start_controller(){ 
 
   char address[] = "aa:bb:cc:dd:ee:ff";
@@ -25,17 +28,30 @@ void start_controller(){
 
 }
 
+// define all auto functions
+void auto_functions(){
+
+}
+
 
 // Task for handling the LEDs on core 1
-void LEDTaskcode( void * pvParameters ){
+void LightsTaskcode( void * pvParameters ){
   // another option to have a timed loop is to use vTaskDelayUntil(), have to look into it first
   for(;;){
     if(millis()-loopTime >= Ts){
 
       loopTime = millis();
-      // get states from controller if active
 
-      // else get states from auto mode
+      // set the lights, do first to make sampling as equidistant as possible
+      if(auto_mode){
+        auto_functions();
+      } else {
+        ctrl.function_selector();
+      };
+
+      // get update from controller
+
+   
 
     }
     // make space for idle task by 1ms delay, make sure esp does not crash
@@ -74,8 +90,8 @@ void setup() {
 
   //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
   xTaskCreatePinnedToCore(
-                    LEDTaskcode, /* Task function. */
-                    "LEDTask",   /* name of task. */
+                    LightsTaskcode, /* Task function. */
+                    "LightsTask",   /* name of task. */
                     20000,       /* Stack size of task */
                     NULL,        /* parameter of the task */
                     1,           /* priority of the task */
