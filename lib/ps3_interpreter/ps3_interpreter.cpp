@@ -24,11 +24,18 @@ void controller_handler::set_objects(Pixels* led_object_, Bulbgroups* bulb_objec
     
 // };
 
-void controller_handler::default_settings(uint8_t BPM, uint8_t mode, uint8_t color, float brightness){
+void controller_handler::default_settings(uint8_t BPM, uint8_t mode, uint8_t color, float brightness, 
+uint8_t min_BPM_, uint8_t max_BPM_, uint8_t max_mode_, uint8_t max_color_){
     controller_handler::states.BPM = BPM;
     controller_handler::states.mode = mode;
     controller_handler::states.color = color;
     controller_handler::states.brightness = brightness;
+
+    min_BPM = min_BPM_;
+    max_BPM = max_BPM_;
+    max_mode = max_mode_;
+    max_color = max_color_;
+
 }
 
 // parse the logic of the controller states
@@ -110,8 +117,57 @@ void controller_handler::start(){
     // only toggle between true and false on use_controller
     use_controller = !use_controller;
 };
+
+// make the rumble 
+void controller_handler::rumble(uint8_t times){
+    for(int k=0; k<times; k++){
+        Ps3.setRumble(80,0);
+        delay(200);
+        Ps3.setRumble(0,0);
+    }
+};
+
 void controller_handler::select(){
-    Serial.println("select");
+    // cycle through modes
+    if (controller_handler::controller_toggle[CROSS]){
+        controller_handler::states.mode = (controller_handler::states.mode>0) ? controller_handler::states.mode-1 : controller_handler::states.mode;
+    }
+    if (controller_handler::controller_toggle[TRIANGLE]){
+        controller_handler::states.mode = (controller_handler::states.mode<max_mode) ? controller_handler::states.mode+1 : controller_handler::states.mode;
+    }
+
+    // set color
+    if (controller_handler::controller_toggle[SQUARE]){
+        controller_handler::states.color = (controller_handler::states.color>0) ? controller_handler::states.color-1 : controller_handler::states.color;
+    }
+    if (controller_handler::controller_toggle[CIRCLE]){
+        controller_handler::states.color = (controller_handler::states.color<max_color) ? controller_handler::states.color+1 : controller_handler::states.color;
+    }
+
+    // set brightness
+    if (controller_handler::controller_toggle[D_LEFT]){
+        controller_handler::states.brightness = (controller_handler::states.brightness>0) ? controller_handler::states.brightness-0.02 : controller_handler::states.brightness;
+    }
+    if (controller_handler::controller_toggle[D_RIGHT]){
+        controller_handler::states.brightness = (controller_handler::states.brightness<1) ? controller_handler::states.brightness+0.02 : controller_handler::states.brightness;
+    }
+
+    // set BPM
+    if (controller_handler::controller_toggle[D_DOWN]){
+        controller_handler::states.BPM = (controller_handler::states.BPM>min_BPM) ? controller_handler::states.BPM-1 : controller_handler::states.BPM;
+        // rumble when multiple of 10
+        if (controller_handler::states.BPM%10 == 0){
+            controller_handler::rumble(1);
+        } 
+    }
+    if (controller_handler::controller_toggle[D_UP]){
+        controller_handler::states.BPM = (controller_handler::states.BPM<max_BPM) ? controller_handler::states.BPM+1 : controller_handler::states.BPM;
+        // rumble when multiple of 10
+        if (controller_handler::states.BPM%10 == 0){
+            controller_handler::rumble(1);
+        } 
+    }
+
 };
 
 // make all modes

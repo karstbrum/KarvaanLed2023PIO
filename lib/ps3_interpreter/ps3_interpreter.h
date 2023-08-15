@@ -70,7 +70,8 @@ class controller_handler {
         void setup_bulbs(uint8_t Bulbpins_[], uint8_t numSidesBulb_, uint8_t bulbsPerSide_[],uint16_t Ts_);
 
         // default settings
-        void default_settings(uint8_t BPM = 120, uint8_t mode = 1, uint8_t color = 1, float brightness = 0.3);
+        void default_settings(uint8_t BPM = 120, uint8_t mode = 1, uint8_t color = 1, float brightness = 0.3, 
+        uint8_t min_BPM_ = 10, uint8_t max_BPM_ = 200, uint8_t max_mode_ = 10, uint8_t max_color_ = 14);
 
         // set object of bulbs and leds
         void set_objects(Pixels* led_object_, Bulbgroups* bulb_object_);
@@ -89,6 +90,8 @@ class controller_handler {
         void sticks(); // control focus point horizontal or vertical or both
         void l_stick_press(); //pulse all leds at high frequency?
         void r_stick_press(); //all leds go from top to bottem or vice versa, random pattern
+        // set controller rumble
+        void rumble(uint8_t times);
 
         // states struct
         struct {
@@ -97,6 +100,12 @@ class controller_handler {
             uint8_t color;
             float brightness;
             } states;
+        
+        // set min and max of settings
+        uint8_t min_BPM;
+        uint8_t max_BPM;
+        uint8_t max_mode;
+        uint8_t max_color;
 
         // declare pointer for led mode class
         Pixels* led_object;

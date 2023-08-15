@@ -6,15 +6,15 @@
 #include "ps3_interpreter.h"
 
 // Sampling time (Ts)
-#define Ts 1000
+#define Ts 250
 // number of ms before next loop iteration which allows 1ms task delay
 #define delay_ms 5
 
 // max numbers for settings
 #define MAXCOLORS 15
-#define MAXBRIGHT 100
-#define MAXMODES 25
-#define MAXBPM 300
+#define MAXMODES 25 // to be defined
+#define MINBPM 101
+#define MAXBPM 199
 
 // set up the different cores
 TaskHandle_t ControllerTask;
@@ -73,7 +73,8 @@ void start_controller(){
   char address[] = "aa:bb:cc:dd:ee:ff";
   setup_controller(address);
 
-  ctrl.default_settings(states.BPM, states.mode, states.color, states.brightness);
+  ctrl.default_settings(states.BPM, states.mode, states.color, states.brightness, 
+  MINBPM, MAXBPM, MAXMODES, MAXCOLORS);
 
 }
 
@@ -113,16 +114,28 @@ void auto_functions(){
       LED.setColor(states.color);
       Bulb.staticValue();
       break; }
-    case 2: {// pulse with same color with fade
+    case 1: {// pulse with same color with fade
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       LED.pulseSameColor(states.color,1);
       Bulb.pulse(1);
       break;}
+    case 2: {// pulse to other coler with fade
+      LED.freqdiv = 2;
+      Bulb.freqdiv = 2;
+      LED.pulseToOtherColor(1,1);
+      Bulb.pulse(1);
+      break;}
+    case 3: {// travel up and down wiht band of 100% pixels, 3 bulbs with fading brightness
+      uint8_t clusters[] = {2, 2, 2, 3, 2, 2, 2, 2, 2};
+      int Direction[] = {-1, 1, -1, 1, 1, -1, -1, 1, -1};
+      uint8_t numClusters = sizeof(clusters);
+      LED.upDown(0.3, states.color, 1, 0, numClusters, clusters, 1, Direction);
+      Bulb.upDown(1, 1, 1);
+      break;}   
   }
 
 }
-
 
 // Task for handling the LEDs on core 1
 void LightsTaskcode( void * pvParameters ){
@@ -135,6 +148,15 @@ void LightsTaskcode( void * pvParameters ){
     if(millis()-loopTime >= Ts){
 
       loopTime = millis();
+
+      Serial.print("mode: ");
+      Serial.print(states.mode);
+      Serial.print(", bpm: ");
+      Serial.print(states.BPM);
+      Serial.print(". brightness: ");
+      Serial.print(states.brightness);
+      Serial.print(", color: ");
+      Serial.println(states.color);
 
       // set the lights, do first to make sampling as equidistant as possible
       if(!ctrl.use_controller){
