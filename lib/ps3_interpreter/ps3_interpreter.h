@@ -9,8 +9,6 @@
 
 #include <Ps3Controller.h>
 
-#include "led_driver.h"
-#include "bulb_driver.h"
 
 #define MAXCONTROLLERS 4
 
@@ -59,13 +57,19 @@ class controller_handler {
         // check for possible combinations
         bool combination_parser(int input);
 
-        // logic to select the correct function, call this function in main
-        void function_selector();
+        // logic to select the correct function to determine mode, call in main
+        void function_mode_selector();
+
+        // logic to select the correct function to determine settings, on callback
+        void function_setting_selector();
 
         // setup the lights led and bulbs
         void setup_leds(uint8_t numSidesLED_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], 
         uint8_t LEDPin_[], uint16_t Ts_);
         void setup_bulbs(uint8_t Bulbpins_[], uint8_t numSidesBulb_, uint8_t bulbsPerSide_[],uint16_t Ts_);
+
+        // default settings
+        void default_settings(uint8_t BPM = 120, uint8_t mode = 1, uint8_t color = 1, float brightness = 0.3);
 
         // define function per combination
         void cross(); // cross mode
@@ -82,8 +86,23 @@ class controller_handler {
         void l_stick_press(); //pulse all leds at high frequency?
         void r_stick_press(); //all leds go from top to bottem or vice versa, random pattern
 
+        // states struct
+        struct {
+            uint8_t BPM;
+            uint8_t mode;
+            uint8_t color;
+            float brightness;
+            } states;
+
+        // checks for combinations and values
         int controller_states[INPUTS] = {};
         bool controller_toggle[INPUTS] = {};
+
+        // make variable to determine mode switch between manual and auto mode
+        bool use_controller = false;
+        
+        // last time controller is used
+        int controller_use_time;
 
         // define the possible combinations
         // input is row and checks if possible wiht column
@@ -96,7 +115,7 @@ class controller_handler {
          {0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // d up
          {0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // d right
          {0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // d down
-         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // d left
+         {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // d left
          {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // start
          {1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // select
          {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}, // l trigger

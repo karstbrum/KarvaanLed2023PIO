@@ -13,8 +13,6 @@ controller_handler::controller_handler(){
 
 void controller_handler::setup_leds(uint8_t numSidesLED_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], 
 uint8_t LEDPin_[], uint16_t Ts_){
-
-
     
 };
 
@@ -22,19 +20,26 @@ void controller_handler::setup_bulbs( uint8_t Bulbpins_[], uint8_t numSidesBulb_
     
 };
 
+void controller_handler::default_settings(uint8_t BPM, uint8_t mode, uint8_t color, float brightness){
+    controller_handler::states.BPM = BPM;
+    controller_handler::states.mode = mode;
+    controller_handler::states.color = color;
+    controller_handler::states.brightness = brightness;
+}
+
 // parse the logic of the controller states
 bool controller_handler::combination_parser(int input){
 
     // first check if any of the states are set to true
     // loop to all the states that are true and see if it is possible to set it
-    static bool set_state = true;
+    bool set_state = true;
 
     // loop through number of inputs
     for(int k=0; k<INPUTS; k++){
         // if one of the state is toggled, check if combination is possible
-        if(controller_toggle[k]){
+        if(controller_handler::controller_toggle[k]){
             // both need to be true, otherwise input is not possible
-            set_state = set_state && combination_array[k][input];
+            set_state = set_state && controller_handler::combination_array[k][input];
         };
     };
 
@@ -44,7 +49,7 @@ bool controller_handler::combination_parser(int input){
 
 // loop through the function pointer matrix
 // 
-void controller_handler::function_selector(){
+void controller_handler::function_mode_selector(){
 
     // just use if statements 
     if (controller_handler::controller_toggle[CROSS] && !controller_handler::controller_toggle[SELECT]){
@@ -58,12 +63,6 @@ void controller_handler::function_selector(){
     }
     if (controller_handler::controller_toggle[CIRCLE] && !controller_handler::controller_toggle[SELECT]){
         controller_handler::circle();
-    }
-    if (controller_handler::controller_toggle[START]){
-        controller_handler::start();
-    }
-    if (controller_handler::controller_toggle[SELECT]){
-        controller_handler::select();
     }
     if (controller_handler::controller_toggle[L_TRIGGER]){
         controller_handler::l_trigger();
@@ -92,6 +91,25 @@ void controller_handler::function_selector(){
 
 };
 
+// toggle through settings on callback
+void controller_handler::function_setting_selector(){
+    if (controller_handler::controller_toggle[START]){
+        controller_handler::start();
+    }
+    if (controller_handler::controller_toggle[SELECT]){
+        controller_handler::select();
+    }
+};
+
+// make setting functions modes
+void controller_handler::start(){
+    // only toggle between true and false on use_controller
+    use_controller = !use_controller;
+};
+void controller_handler::select(){
+    Serial.println("select");
+};
+
 // make all modes
 void controller_handler::cross(){
     Serial.println("cross");
@@ -104,12 +122,6 @@ void controller_handler::triangle(){
 };
 void controller_handler::circle(){
     Serial.println("circle");
-};
-void controller_handler::start(){
-    Serial.println("start");
-};
-void controller_handler::select(){
-    Serial.println("select");
 };
 void controller_handler::l_trigger(){
     Serial.println("l trigger");
@@ -162,40 +174,106 @@ void controller_callbacks(){
             ctrl.controller_toggle[CROSS] = true;
             ctrl.controller_states[CROSS] = 1;
         };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_up.cross ){
         ctrl.controller_toggle[CROSS] = false;
         ctrl.controller_states[CROSS] = 0;
+        ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_down.square ){
         if(ctrl.combination_parser(SQUARE)){
             ctrl.controller_toggle[SQUARE] = true;
             ctrl.controller_states[SQUARE] = 1;
         };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_up.square ){    
         ctrl.controller_toggle[SQUARE] = false;
         ctrl.controller_states[SQUARE] = 0;
+        ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_down.triangle ){
         if(ctrl.combination_parser(TRIANGLE)){
             ctrl.controller_toggle[TRIANGLE] = true;
             ctrl.controller_states[TRIANGLE] = 1;
         };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
     };  
     if( Ps3.event.button_up.triangle ){
         ctrl.controller_toggle[TRIANGLE] = false;
         ctrl.controller_states[TRIANGLE] = 0;
+        ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_down.circle ){
         if(ctrl.combination_parser(CIRCLE)){
             ctrl.controller_toggle[CIRCLE] = true;
             ctrl.controller_states[CIRCLE] = 1;
         };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_up.circle ){
         ctrl.controller_toggle[CIRCLE] = false;
         ctrl.controller_states[CIRCLE] = 0;
+        ctrl.controller_use_time = millis();
+    };
+
+    // d pad
+    if( Ps3.event.button_down.up){
+        if(ctrl.combination_parser(D_UP)){
+            ctrl.controller_toggle[D_UP] = true;
+            ctrl.controller_states[D_UP] = 1;
+        };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_up.up){
+        ctrl.controller_toggle[D_UP] = false;
+        ctrl.controller_states[D_UP] = 0;
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_down.right){
+        if(ctrl.combination_parser(D_RIGHT)){
+            ctrl.controller_toggle[D_RIGHT] = true;
+            ctrl.controller_states[D_RIGHT] = 1;
+        };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_up.right){
+        ctrl.controller_toggle[D_RIGHT] = false;
+        ctrl.controller_states[D_RIGHT] = 0;
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_down.down){
+        if(ctrl.combination_parser(D_DOWN)){
+            ctrl.controller_toggle[D_DOWN] = true;
+            ctrl.controller_states[D_DOWN] = 1;
+        };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_up.down){
+        ctrl.controller_toggle[D_DOWN] = false;
+        ctrl.controller_states[D_DOWN] = 0;
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_down.left){
+        if(ctrl.combination_parser(D_LEFT)){
+            ctrl.controller_toggle[D_LEFT] = true;
+            ctrl.controller_states[D_LEFT] = 1;
+        };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
+    };
+    if( Ps3.event.button_up.left){
+        ctrl.controller_toggle[D_LEFT] = false;
+        ctrl.controller_states[D_LEFT] = 0;
+        ctrl.controller_use_time = millis();
     };
     
     // start and select
@@ -204,20 +282,26 @@ void controller_callbacks(){
             ctrl.controller_toggle[START] = true;
             ctrl.controller_states[START] = 1;
         };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_up.start){
         ctrl.controller_toggle[START] = false;
         ctrl.controller_states[START] = 0;
+        ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_down.select){
         if(ctrl.combination_parser(SELECT)){
             ctrl.controller_toggle[SELECT] = true;
             ctrl.controller_states[SELECT] = 1;
         };
+        ctrl.function_setting_selector();
+        ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_up.select){
         ctrl.controller_toggle[SELECT] = false;
         ctrl.controller_states[SELECT] = 0;
+        ctrl.controller_use_time = millis();
     };
 
     // trigger and bumper 1 is bumpler, 2 is trigger
@@ -229,6 +313,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_BUMPER] = false;
             ctrl.controller_states[L_BUMPER] = 0;
         };
+        ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.button.r1) ){
         if(Ps3.data.analog.button.r1 >0 && ctrl.combination_parser(R_BUMPER)){
@@ -238,6 +323,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_BUMPER] = false;
             ctrl.controller_states[R_BUMPER] = 0;
         };
+        ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.button.l2) ){
         if(Ps3.data.analog.button.l2 >0 && ctrl.combination_parser(L_TRIGGER)){
@@ -247,6 +333,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_TRIGGER] = false;
             ctrl.controller_states[L_TRIGGER] = 0;
         };
+        ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.button.r2) ){
         if(Ps3.data.analog.button.r2 >0 && ctrl.combination_parser(R_TRIGGER)){
@@ -256,6 +343,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_TRIGGER] = false;
             ctrl.controller_states[R_TRIGGER] = 0;
         };
+        ctrl.controller_use_time = millis();
     };
 
     // sticks logic for X and Y is same, so just use X for both X and Y
@@ -271,6 +359,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_STICK_Y] = false;
             ctrl.controller_states[L_STICK_Y] = 0;
         };
+        ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.stick.rx) + abs(Ps3.event.analog_changed.stick.ry) > 2 ){
         if((abs(Ps3.data.analog.stick.rx)+abs(Ps3.data.analog.stick.ry))>2 && ctrl.combination_parser(R_STICK_X)){
@@ -284,6 +373,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_STICK_Y] = false;
             ctrl.controller_states[R_STICK_Y] = 0;
         };
+        ctrl.controller_use_time = millis();
     };
 
     // stick press l3 and r3
@@ -292,20 +382,24 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_STICK_PRESS] = true;
             ctrl.controller_states[L_STICK_PRESS] = 1;
         };
+        ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_up.l3){
         ctrl.controller_toggle[L_STICK_PRESS] = false;
         ctrl.controller_states[L_STICK_PRESS] = 0;
+        ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_down.r3){
         if(ctrl.combination_parser(R_STICK_PRESS)){
             ctrl.controller_toggle[R_STICK_PRESS] = true;
             ctrl.controller_states[R_STICK_PRESS] = 1;
         };
+        ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_up.r3){
         ctrl.controller_toggle[R_STICK_PRESS] = false;
         ctrl.controller_states[R_STICK_PRESS] = 0;
+        ctrl.controller_use_time = millis();
     };
 
 };

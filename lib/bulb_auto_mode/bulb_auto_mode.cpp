@@ -21,7 +21,7 @@ Bulbgroups::Bulbgroups(uint8_t bulbpins_[], uint8_t numSides_, uint8_t bulbsPerS
         totalBulbs += bulbsPerSide[k];
     }
 
-    groups = new Bulbs(bulbpins_, numSides, bulbsPerSide);
+    groups = new Bulbs(bulbpins_, numSides, bulbsPerSide); 
 
 };
 
