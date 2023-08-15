@@ -57,10 +57,14 @@ void stateSpace::updateStates(float u, float x_max){
 
     // basic state space
     x = A*x_prev + B*u;
+
+    // not limited in output but in states
+    x = (x>x_max) ? x_max : x;
+
+    // output
     y = C*x;
 
-    // not limited in output, not in states
-    x = (x>x_max) ? x_max : x;
+    
     // set previous state for next iteration
     x_prev = x;
 
@@ -199,14 +203,15 @@ void RGBW::setStrip() {
         };
         
     };
-    for (uint8_t k = 0; k < numPins; k++) {           // for each strip      
+
+    for (uint8_t k = 0; k < numPins; k++) {           // for each strip 
         strip[k].show();      //  Set strip
     };
     
 };
 
 // nested function for updating dynamics
-void RGBWsetDynamics(float fallTime, float riseTime, uint8_t order, float frequency, float damping){
+void RGBW::setDynamics(float fallTime, float riseTime, float Ts){
 
 
 };

@@ -8,17 +8,21 @@
 
 
 controller_handler::controller_handler(){
-
 };
 
-void controller_handler::setup_leds(uint8_t numSidesLED_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], 
-uint8_t LEDPin_[], uint16_t Ts_){
+void controller_handler::set_objects(Pixels* led_object_, Bulbgroups* bulb_object_){
+    led_object = led_object_;
+    bulb_object = bulb_object_;
+};
+
+// void controller_handler::setup_leds(uint8_t numSidesLED_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], 
+// uint8_t LEDPin_[], uint16_t Ts_){
     
-};
+// };
 
-void controller_handler::setup_bulbs( uint8_t Bulbpins_[], uint8_t numSidesBulb_, uint8_t bulbsPerSide_[],uint16_t Ts_){
+// void controller_handler::setup_bulbs( uint8_t Bulbpins_[], uint8_t numSidesBulb_, uint8_t bulbsPerSide_[],uint16_t Ts_){
     
-};
+// };
 
 void controller_handler::default_settings(uint8_t BPM, uint8_t mode, uint8_t color, float brightness){
     controller_handler::states.BPM = BPM;

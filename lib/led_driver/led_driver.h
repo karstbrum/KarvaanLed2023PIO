@@ -90,6 +90,8 @@ class RGBW {
         // create color fading range
         void setRangeColorFade(uint16_t startLED = 0, uint16_t endLED = 1, uint8_t startColor = 0, uint8_t endColor = 1, float extraDim = 1);
 
+        void setDynamics(float fallTime = 0, float riseTime = 0, float Ts = 0.1);
+
         // colors
         uint8_t RGBWStates[MAXNUMPIXELS][4];
 

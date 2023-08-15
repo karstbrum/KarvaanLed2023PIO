@@ -8,7 +8,8 @@
 #endif
 
 #include <Ps3Controller.h>
-
+#include "led_auto_mode.h"
+#include "bulb_auto_mode.h"
 
 #define MAXCONTROLLERS 4
 
@@ -71,6 +72,9 @@ class controller_handler {
         // default settings
         void default_settings(uint8_t BPM = 120, uint8_t mode = 1, uint8_t color = 1, float brightness = 0.3);
 
+        // set object of bulbs and leds
+        void set_objects(Pixels* led_object_, Bulbgroups* bulb_object_);
+
         // define function per combination
         void cross(); // cross mode
         void square(); // square mode   
@@ -93,6 +97,10 @@ class controller_handler {
             uint8_t color;
             float brightness;
             } states;
+
+        // declare pointer for led mode class
+        Pixels* led_object;
+        Bulbgroups* bulb_object;
 
         // checks for combinations and values
         int controller_states[INPUTS] = {};
