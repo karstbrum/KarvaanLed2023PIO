@@ -64,6 +64,9 @@ class controller_handler {
         // logic to select the correct function to determine settings, on callback
         void function_setting_selector();
 
+        // function to check if switcht is needed from manual to controller
+        void activate_controller();
+
         // setup the lights led and bulbs
         void setup_leds(uint8_t numSidesLED_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], 
         uint8_t LEDPin_[], uint16_t Ts_);

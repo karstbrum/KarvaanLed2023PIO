@@ -6,7 +6,7 @@
 #include "ps3_interpreter.h"
 
 // Sampling time (Ts)
-#define Ts 250
+#define Ts 25
 // number of ms before next loop iteration which allows 1ms task delay
 #define delay_ms 5
 
@@ -44,12 +44,16 @@ uint8_t numCombinations = 2;
 uint8_t BulbsPerCombination[] = {5, 5};
 Bulbgroups Bulb(bulbpins, numCombinations, BulbsPerCombination, Ts);
 
+// pointers to objects
+Pixels* LED_pointer = &LED;
+Bulbgroups* Bulb_pointer = &Bulb;
+
 // TIME VARIABLES
 // Time spent in the main loop
 int loopTime = 0;
 
 // time to automatically switch to auto mode in milliseconds
-int auto_switch_time = 10000;
+int auto_switch_time = 60000;
 
 // define states 
 struct {
@@ -70,11 +74,16 @@ void set_initial_states(){
 
 void start_controller(){ 
 
+  // search for controller with this address
   char address[] = "aa:bb:cc:dd:ee:ff";
   setup_controller(address);
 
+  // set default states, sync with controller
   ctrl.default_settings(states.BPM, states.mode, states.color, states.brightness, 
   MINBPM, MAXBPM, MAXMODES, MAXCOLORS);
+
+  // set the controller objects for controlling lights
+  ctrl.set_objects(LED_pointer, Bulb_pointer);
 
 }
 
@@ -148,15 +157,6 @@ void LightsTaskcode( void * pvParameters ){
     if(millis()-loopTime >= Ts){
 
       loopTime = millis();
-
-      Serial.print("mode: ");
-      Serial.print(states.mode);
-      Serial.print(", bpm: ");
-      Serial.print(states.BPM);
-      Serial.print(". brightness: ");
-      Serial.print(states.brightness);
-      Serial.print(", color: ");
-      Serial.println(states.color);
 
       // set the lights, do first to make sampling as equidistant as possible
       if(!ctrl.use_controller){

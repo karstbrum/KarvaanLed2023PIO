@@ -58,6 +58,22 @@ bool controller_handler::combination_parser(int input){
     
 };
 
+// make the rumble 
+void controller_handler::rumble(uint8_t times){
+    for(int k=0; k<times; k++){
+        Ps3.setRumble(100,0);
+        delay(500);
+        Ps3.setRumble(0,0);
+    }
+};
+
+// function to check if controller should be activated
+void controller_handler::activate_controller(){
+    if (!controller_handler::controller_toggle[SELECT] && !controller_handler::controller_toggle[START]){
+        controller_handler::use_controller = true;
+    }
+}
+
 // loop through the function pointer matrix
 // 
 void controller_handler::function_mode_selector(){
@@ -118,15 +134,6 @@ void controller_handler::start(){
     use_controller = !use_controller;
 };
 
-// make the rumble 
-void controller_handler::rumble(uint8_t times){
-    for(int k=0; k<times; k++){
-        Ps3.setRumble(80,0);
-        delay(200);
-        Ps3.setRumble(0,0);
-    }
-};
-
 void controller_handler::select(){
     // cycle through modes
     if (controller_handler::controller_toggle[CROSS]){
@@ -136,12 +143,12 @@ void controller_handler::select(){
         controller_handler::states.mode = (controller_handler::states.mode<max_mode) ? controller_handler::states.mode+1 : controller_handler::states.mode;
     }
 
-    // set color
+    // set color, continuous loop
     if (controller_handler::controller_toggle[SQUARE]){
-        controller_handler::states.color = (controller_handler::states.color>0) ? controller_handler::states.color-1 : controller_handler::states.color;
+        controller_handler::states.color = (controller_handler::states.color>0) ? controller_handler::states.color-1 : max_color;
     }
     if (controller_handler::controller_toggle[CIRCLE]){
-        controller_handler::states.color = (controller_handler::states.color<max_color) ? controller_handler::states.color+1 : controller_handler::states.color;
+        controller_handler::states.color = (controller_handler::states.color<max_color) ? controller_handler::states.color+1 : 0;
     }
 
     // set brightness
@@ -172,37 +179,51 @@ void controller_handler::select(){
 
 // make all modes
 void controller_handler::cross(){
-    Serial.println("cross");
+    float freqdiv_led;
+    float controller_value = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
+    if(controller_handler::controller_states[L_STICK_Y]<0){
+        freqdiv_led = 1 - abs(controller_value/150);
+    } else if(controller_handler::controller_states[L_STICK_Y]>0) {
+        freqdiv_led = 1 + abs(controller_value/25);
+    } else {
+        freqdiv_led = 1;
+    }
+    led_object->freqdiv = freqdiv_led;
+    Serial.println(led_object->freqdiv);
+    uint8_t clusters[] = {4, 5, 4, 6};
+    uint8_t numClusters = sizeof(clusters);
+    led_object->travelSides(states.color, 1, 0, 1, numClusters, clusters, 0, 1);
+    bulb_object->flashingBulbs(1, 1, 1);
 };
 void controller_handler::square(){
-    Serial.println("square");
+    
 }; 
 void controller_handler::triangle(){
-    Serial.println("triangle");
+    
 };
 void controller_handler::circle(){
-    Serial.println("circle");
+    
 };
 void controller_handler::l_trigger(){
-    Serial.println("l trigger");
+    
 };
 void controller_handler::r_trigger(){
-    Serial.println("r trigger");
+    
 };
 void controller_handler::l_bumper(){
-    Serial.println("l bumper");
+    
 };
 void controller_handler::r_bumper(){
-    Serial.println("r bumper");
+    
 };
 void controller_handler::sticks(){
-    Serial.println("sticks");
+    
 };
 void controller_handler::l_stick_press(){
-    Serial.println("l stick");
+    
 };
 void controller_handler::r_stick_press(){
-    Serial.println("r stick");
+    
 };
 
 
@@ -235,6 +256,7 @@ void controller_callbacks(){
             ctrl.controller_states[CROSS] = 1;
         };
         ctrl.function_setting_selector();
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_up.cross ){
@@ -248,6 +270,7 @@ void controller_callbacks(){
             ctrl.controller_states[SQUARE] = 1;
         };
         ctrl.function_setting_selector();
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_up.square ){    
@@ -261,6 +284,7 @@ void controller_callbacks(){
             ctrl.controller_states[TRIANGLE] = 1;
         };
         ctrl.function_setting_selector();
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };  
     if( Ps3.event.button_up.triangle ){
@@ -274,6 +298,7 @@ void controller_callbacks(){
             ctrl.controller_states[CIRCLE] = 1;
         };
         ctrl.function_setting_selector();
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( Ps3.event.button_up.circle ){
@@ -373,6 +398,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_BUMPER] = false;
             ctrl.controller_states[L_BUMPER] = 0;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.button.r1) ){
@@ -383,6 +409,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_BUMPER] = false;
             ctrl.controller_states[R_BUMPER] = 0;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.button.l2) ){
@@ -393,6 +420,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_TRIGGER] = false;
             ctrl.controller_states[L_TRIGGER] = 0;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.button.r2) ){
@@ -403,6 +431,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_TRIGGER] = false;
             ctrl.controller_states[R_TRIGGER] = 0;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
 
@@ -419,6 +448,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_STICK_Y] = false;
             ctrl.controller_states[L_STICK_Y] = 0;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if( abs(Ps3.event.analog_changed.stick.rx) + abs(Ps3.event.analog_changed.stick.ry) > 2 ){
@@ -433,6 +463,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_STICK_Y] = false;
             ctrl.controller_states[R_STICK_Y] = 0;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
 
@@ -442,6 +473,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[L_STICK_PRESS] = true;
             ctrl.controller_states[L_STICK_PRESS] = 1;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_up.l3){
@@ -454,6 +486,7 @@ void controller_callbacks(){
             ctrl.controller_toggle[R_STICK_PRESS] = true;
             ctrl.controller_states[R_STICK_PRESS] = 1;
         };
+        ctrl.activate_controller();
         ctrl.controller_use_time = millis();
     };
     if (Ps3.event.button_up.r3){

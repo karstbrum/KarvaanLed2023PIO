@@ -54,7 +54,7 @@ class Bulbgroups {
         int sideIndex = 0;
 
         // frequency divider
-        uint8_t freqdiv = 1;
+        float freqdiv = 1;
 
     private:
 
