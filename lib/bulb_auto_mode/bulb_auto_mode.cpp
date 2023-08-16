@@ -63,8 +63,12 @@ void Bulbgroups::setLevels() {
     groups->setBulbs();
 };
 
-void Bulbgroups::staticValue() {
-    groups->setBrightnessAll(1);
+void Bulbgroups::staticValue(bool on) {
+    if(on){
+        groups->setBrightnessAll(1);
+    } else {
+        groups->setBrightnessAll(0);
+    }
 }
 
 // pulsing 

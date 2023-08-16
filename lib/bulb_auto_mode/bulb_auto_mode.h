@@ -31,7 +31,7 @@ class Bulbgroups {
         void setBPM(float BPM_);
 
         // just on
-        void staticValue();
+        void staticValue(bool on=true);
 
         // pulse all lights
         void pulse(bool fade = 1, float onValue = 0.4);

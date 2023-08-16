@@ -11,7 +11,7 @@
 #define delay_ms 5
 
 // max numbers for settings
-#define MAXCOLORS 15
+#define MAXCOLORS 13
 #define MAXMODES 25 // to be defined
 #define MINBPM 101
 #define MAXBPM 199
@@ -54,6 +54,12 @@ int loopTime = 0;
 
 // time to automatically switch to auto mode in milliseconds
 int auto_switch_time = 60000;
+
+// set statespace checker
+int check_statespace = -1;
+
+// check if switched to controller
+bool controller_switch = true;
 
 // define states 
 struct {
@@ -108,6 +114,25 @@ void sync_states(){
   }
 }
 
+// check if state space needs to be changed
+void statespace_checker(int mode_used, float fall_time, float rise_time){
+  if(check_statespace != mode_used){
+    check_statespace = mode_used;
+    ctrl.check_statespace = -1;
+    LED.set_statespace(fall_time, rise_time);
+  }
+}
+
+// check if switched to controller
+void to_controller(){
+  if(controller_switch){
+    // color 14 is off
+    LED.setColor(14);
+    // staticvalue 0 is off
+    Bulb.staticValue(0);
+  }
+}
+
 // define all auto functions
 void auto_functions(){
 
@@ -116,26 +141,30 @@ void auto_functions(){
   
   // define mode that is used
   mode_used = states.mode;
-  
+
   // switch between modes
   switch (mode_used){
     case 0: {// set all to static
+      statespace_checker(0, 0, 0);
       LED.setColor(states.color);
       Bulb.staticValue();
       break; }
     case 1: {// pulse with same color with fade
+      statespace_checker(0, 0, 0);
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       LED.pulseSameColor(states.color,1);
       Bulb.pulse(1);
       break;}
     case 2: {// pulse to other coler with fade
+      statespace_checker(0, 0, 0);
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       LED.pulseToOtherColor(1,1);
       Bulb.pulse(1);
       break;}
     case 3: {// travel up and down wiht band of 100% pixels, 3 bulbs with fading brightness
+      statespace_checker(0, 0, 0);
       uint8_t clusters[] = {2, 2, 2, 3, 2, 2, 2, 2, 2};
       int Direction[] = {-1, 1, -1, 1, 1, -1, -1, 1, -1};
       uint8_t numClusters = sizeof(clusters);
@@ -160,8 +189,12 @@ void LightsTaskcode( void * pvParameters ){
 
       // set the lights, do first to make sampling as equidistant as possible
       if(!ctrl.use_controller){
+        // call auto mode
         auto_functions();
       } else {
+        // reset statespace for auto mode
+        statespace_checker(-1, 0, 0);
+        // call control mode
         ctrl.function_mode_selector();
       };
 

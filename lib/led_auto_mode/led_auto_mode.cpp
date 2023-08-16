@@ -61,6 +61,7 @@ void Pixels::defineFirstColors() { //colors defined clockwise circle -> rainbow 
     strip->addColor(  0, 180,   0, 255); //violet 11 
     strip->addColor(  0,   0, 255, 80); //spring green 12  
     strip->addColor(  0, 255,  80,   0); //orange 13
+    strip->addColor(  0,   0,  0,   0); //off
 
     //strip->addColor(0, 255, 60, 128); //14
     //strip->addColor(0, 128, 255, 60); //15
@@ -864,12 +865,15 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
 // set the color
 void Pixels::activateColor() {
     strip->setStrip();
-};
+}
 
 // get random number
 float Pixels::randomFloat() {
-
     uint8_t randnum = rand() % 100;
     return 0.1 + static_cast<float>(randnum) / 125;
+}
 
+// set statespace
+void Pixels::set_statespace(float fallTime, float riseTime){
+    strip->setDynamics(fallTime, riseTime, Ts);
 }

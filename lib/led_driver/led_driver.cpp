@@ -212,6 +212,7 @@ void RGBW::setStrip() {
 
 // nested function for updating dynamics
 void RGBW::setDynamics(float fallTime, float riseTime, float Ts){
-
-
+    for (uint8_t k = 0; k < numLEDs; k++) { 
+        dynamicStates[k].setDynamics(fallTime, riseTime, Ts);
+    };
 };
