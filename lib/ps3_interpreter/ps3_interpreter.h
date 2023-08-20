@@ -73,8 +73,8 @@ class controller_handler {
         void setup_bulbs(uint8_t Bulbpins_[], uint8_t numSidesBulb_, uint8_t bulbsPerSide_[],uint16_t Ts_);
 
         // default settings
-        void default_settings(uint8_t BPM = 120, uint8_t mode = 1, uint8_t color = 1, float brightness = 0.3, 
-        uint8_t min_BPM_ = 10, uint8_t max_BPM_ = 200, uint8_t max_mode_ = 10, uint8_t max_color_ = 14);
+        void default_settings(uint8_t BPM = 120, uint8_t mode = 1, uint8_t color = 1, uint8_t travelMode = 0, float brightness = 0.3, 
+        uint8_t min_BPM_ = 10, uint8_t max_BPM_ = 200, uint8_t max_mode_ = 10, uint8_t max_color_ = 14, uint8_t max_travel_mode = 5);
 
         // set object of bulbs and leds
         void set_objects(Pixels* led_object_, Bulbgroups* bulb_object_);
@@ -104,6 +104,7 @@ class controller_handler {
             uint8_t BPM;
             uint8_t mode;
             uint8_t color;
+            uint8_t travelMode;
             float brightness;
             } states;
         
@@ -111,6 +112,7 @@ class controller_handler {
         uint8_t min_BPM;
         uint8_t max_BPM;
         uint8_t max_mode;
+        uint8_t max_travel_mode;
         uint8_t max_color;
 
         // declare pointer for led mode class

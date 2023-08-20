@@ -24,17 +24,19 @@ void controller_handler::set_objects(Pixels* led_object_, Bulbgroups* bulb_objec
     
 // };
 
-void controller_handler::default_settings(uint8_t BPM, uint8_t mode, uint8_t color, float brightness, 
-uint8_t min_BPM_, uint8_t max_BPM_, uint8_t max_mode_, uint8_t max_color_){
+void controller_handler::default_settings(uint8_t BPM, uint8_t mode, uint8_t color, uint8_t travelMode, float brightness, 
+uint8_t min_BPM_, uint8_t max_BPM_, uint8_t max_mode_, uint8_t max_color_, uint8_t max_travelmode_){
     controller_handler::states.BPM = BPM;
     controller_handler::states.mode = mode;
     controller_handler::states.color = color;
     controller_handler::states.brightness = brightness;
+    controller_handler::states.travelMode = travelMode;
 
     min_BPM = min_BPM_;
     max_BPM = max_BPM_;
     max_mode = max_mode_;
     max_color = max_color_;
+    max_travelmode_ = max_travelmode_;
 
 }
 
@@ -208,6 +210,10 @@ void controller_handler::square(){
     
 }; 
 void controller_handler::triangle(){
+    // set travel mode
+    controller_handler::states.travelMode = controller_handler::states.travelMode < max_travel_mode ? 
+        controller_handler::states.travelMode + 1 
+        : controller_handler::states.travelMode = 0 ;
     
 };
 void controller_handler::circle(){
