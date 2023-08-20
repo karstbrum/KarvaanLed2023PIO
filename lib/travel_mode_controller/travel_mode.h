@@ -16,10 +16,15 @@ class Travel_Mode {
     // constructor
         Travel_Mode(uint8_t numberOfStrips_, uint8_t bpm_, uint8_t travel_mode_);
 
-    // on each net mode, clear first
+public:
+    // on each travel mode, clear first
     void clear();
-    
-    void allTogether(float numberOfStrips, float travel_mode);
 
-    void clockwise(float numberOfStrips, float travel_mode);
+    void allTogether(int numberOfStrips);
+
+    void clockwise(int numberOfStripsm, int bpm);
+
+    void clockwiseFastMoving(int numberOfStrips, int bpm);
+
+    void circleMotion(int numberOfStrips, int bpm);
 }
