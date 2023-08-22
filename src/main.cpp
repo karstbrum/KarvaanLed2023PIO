@@ -65,6 +65,7 @@ bool controller_switch = true;
 struct {
   uint8_t BPM = 120;
   uint8_t mode = 0;
+  uint8_t travelMode = 0;
   uint8_t color = 0;
   float brightness = 1;
   } states;
@@ -76,6 +77,7 @@ void set_initial_states(){
   LED.setColor(states.color);
   LED.setDimmer(states.brightness);
   Bulb.setDimmer(states.brightness);
+  LED.setTravelMode(states.BPM);
 }
 
 void start_controller(){ 
