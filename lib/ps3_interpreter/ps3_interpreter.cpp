@@ -306,20 +306,21 @@ void controller_handler::l_stick_press(){
     
 };
 void controller_handler::r_stick_press(){
-    uint8_t color1 = 2; // red
-    uint8_t color2 = 3; // green
+    uint8_t color1 = 1; // red
+    uint8_t color2 = 2; // green
     bool set_sides1[led_object->numSides];
     bool set_sides2[led_object->numSides];
     for(int k=0; k<led_object->numSides; k++){
         if (k%2 == 1){
             set_sides1[k] = true;
-            Serial.println(k);
+            set_sides2[k] = false; 
         } else {
+            set_sides1[k] = false;
             set_sides2[k] = true;
         }
         
     }
-    led_object->freqdiv = 2;
+    led_object->freqdiv = 0.5;
     led_object->switchCluster(color1, color2, set_sides1, set_sides2);
 };
 

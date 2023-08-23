@@ -766,7 +766,7 @@ void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSI
 
     // iterate on pulse index
     float Ts_ = Ts;
-    pulseIndex += ((Ts_ / 1000) * (BPM / 60)) / 2 / freqdiv; // Ts*BPS (s^1 * s^-1)
+    pulseIndex += ((Ts_ / 1000) * (BPM / 60)) / freqdiv; // Ts*BPS (s^1 * s^-1)
     pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
 
     bool switch_sides = (pulseIndex > 0.5) ? false : true;
@@ -778,8 +778,14 @@ void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSI
         pixelEnd = pixelStart + pixelsPerSide[k]-1;
         if (use_sides1[k] && switch_sides){
             strip->setRange(pixelStart, pixelEnd, color1, 1);
+            // Serial.print(pixelStart);
+            // Serial.print(", ");
+            // Serial.println(pixelEnd);
         } else if (use_sides2[k] && !switch_sides) {
             strip->setRange(pixelStart, pixelEnd, color2, 1);
+            // Serial.print(pixelStart);
+            // Serial.print(", ");
+            // Serial.println(pixelEnd);
         }
         pixelStart = pixelEnd+1;
     }
