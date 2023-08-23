@@ -37,9 +37,6 @@ class Pixels {
         // beats per minute
         void setBPM(float BPM_);
 
-        // set the statespace
-        void set_statespace(float fallTime = 0, float riseTime = 0);
-
         // rainbow mode
         void Rainbow(bool moving = 0, int direction = 1);
 
@@ -101,8 +98,5 @@ class Pixels {
         float randomFloat();
 
 };
-
-
-// seperate functions
 
 #endif

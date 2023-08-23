@@ -19,12 +19,12 @@ Pixels::Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, ui
     numSides = numSides_;
 
     // pixels per pin are needed to setup the strip
-    uint8_t pixelsPerPin[numPins_] = {0};
+    uint16_t pixelsPerPin[numPins_] = {0};
 
     // total amount of pixels
     totalPixels = 0;
 
-    for (uint8_t k = 0; k < numSides_; k++) {
+    for (uint16_t k = 0; k < numSides_; k++) {
         pixelsPerSide[k] = pixelsPerSide_[k];
         totalPixels += pixelsPerSide[k];
     }
@@ -48,31 +48,15 @@ Pixels::Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, ui
 
 void Pixels::defineFirstColors() { //colors defined clockwise circle -> rainbow definition?
     strip->addColor(255,   0,   0,   0); //warm white 0
-    strip->addColor(  0, 255, 255, 255); //white 1
-    strip->addColor(  0, 255,   0,   0); //red 2
-    strip->addColor(  0,   0, 255,   0); //green 3
-    strip->addColor(  0,   0,   0, 255); //blue 4
-    strip->addColor(  0, 255,   0, 128); //rose 5
-    strip->addColor(  0, 255, 255,   0); //chartreuse 6
-    strip->addColor(  0,   0, 128, 255); //azure 7
-    strip->addColor(  0, 255,   0, 255); //magenta 8
-    strip->addColor(  0, 255, 200,   0); //yellow 9
-    strip->addColor(  0,   0, 255, 255); //cyan 10
-    strip->addColor(  0, 180,   0, 255); //violet 11 
-    strip->addColor(  0,   0, 255, 80); //spring green 12  
-    strip->addColor(  0, 255,  80,   0); //orange 13
-    strip->addColor(  0,   0,  0,   0); //off
-
-    //strip->addColor(0, 255, 60, 128); //14
-    //strip->addColor(0, 128, 255, 60); //15
-    //strip->addColor(0, 60, 128, 255); //16
-    //strip->addColor(0, 255, 60, 255); //17
-    //strip->addColor(0, 255, 255, 60); //18
-    //strip->addColor(0, 60, 255, 255); //19
-    //strip->addColor(0, 128, 60, 255); //20
-    //strip->addColor(0, 60, 255, 128); //21  
-    //strip->addColor(0, 255, 128, 60); //22
-
+    strip->addColor(  0, 255,   0,   0); //red 1
+    strip->addColor(  0,   0, 255,   0); //green 2
+    strip->addColor(  0,   0,   0, 255); //blue 3
+    strip->addColor(  0, 255,   0, 128); //rose 4
+    strip->addColor(  0,   0, 128, 255); //azure 5
+    strip->addColor(  0, 255, 200,   0); //yellow 6
+    strip->addColor(  0, 180,   0, 255); //violet 7 
+    strip->addColor(  0,   0, 255, 80); //spring green 8  
+    strip->addColor(  0, 255,  80,   0); //orange 9
 };
 
 void Pixels::setBPM(float BPM_) {
@@ -327,7 +311,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES_L];
+    uint16_t pixelsPerCluster[MAXSIDES_L];
     if (numClusters_ == 0) {
         numClusters = numSides;
         for (uint8_t k = 0; k < numClusters; k++) {
@@ -369,7 +353,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
     float phase[numClusters];
     int direction[numClusters];
 
-    for (uint16_t k = 0; k < numClusters; k++) {
+    for (uint8_t k = 0; k < numClusters; k++) {
         if (setDirection) {
             direction[k] = direction_[k];
         }
@@ -386,7 +370,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
 
     float pulseIndexCluster;
 
-    for (uint16_t k = 0; k < numClusters; k++) {
+    for (uint8_t k = 0; k < numClusters; k++) {
 
         if (direction[k] == 1 || direction[k] == 0) {
             pulseIndexCluster = pulseIndex;
@@ -412,7 +396,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
                 sinOutput = 1 - sin(sinInput * 2 * PI);
             }
 
-            centerFloat = static_cast<uint8_t>(travelRange * (sinOutput));
+            centerFloat = static_cast<uint16_t>(travelRange * (sinOutput));
             
 
         }
@@ -430,24 +414,24 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
                 sinOutput = sin((sinInput) * 2 * PI);
             }
 
-            centerFloat = static_cast<uint8_t>(travelRange * (sinOutput));
+            centerFloat = static_cast<uint16_t>(travelRange * (sinOutput));
 
         }
         else {
-            centerFloat = static_cast<uint8_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
+            centerFloat = static_cast<uint16_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
         }
 
         // endLastCluster is the end of the last Cluster
-        uint8_t startCluster = 0;
+        uint16_t startCluster = 0;
         for (uint16_t l = 0; l < k; l++) {
             startCluster += pixelsPerCluster[l];
         }
 
         // center is the center of the traveling light
-        uint8_t center = startCluster + centerFloat;
+        uint16_t center = startCluster + centerFloat;
 
-        int startLED = center - pixelsPerCluster[k] * tailLength;
-        int endLED = center + pixelsPerCluster[k] * tailLength;
+        int startLED = center - static_cast<uint16_t>(travelRange * tailLength);
+        int endLED = center + static_cast<uint16_t>(travelRange * tailLength);
 
         startLED = (startLED < startCluster) ? startCluster : startLED;
         endLED = (endLED >= (startCluster + pixelsPerCluster[k])) ? (startCluster + pixelsPerCluster[k] - 1) : endLED;
@@ -871,9 +855,4 @@ void Pixels::activateColor() {
 float Pixels::randomFloat() {
     uint8_t randnum = rand() % 100;
     return 0.1 + static_cast<float>(randnum) / 125;
-}
-
-// set statespace
-void Pixels::set_statespace(float fallTime, float riseTime){
-    strip->setDynamics(fallTime, riseTime, Ts);
 }

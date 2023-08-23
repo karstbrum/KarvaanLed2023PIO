@@ -79,9 +79,6 @@ class controller_handler {
         // set object of bulbs and leds
         void set_objects(Pixels* led_object_, Bulbgroups* bulb_object_);
 
-        // statespace checker
-        void statespace_checker(int mode_used, float fall_time, float rise_time);
-
         // define function per combination
         void cross(); // cross mode
         void square(); // square mode   
@@ -126,9 +123,6 @@ class controller_handler {
         
         // last time controller is used
         int controller_use_time;
-
-        // check if statespace is set for mode
-        int check_statespace = -1;
 
         // define the possible combinations
         // input is row and checks if possible wiht column

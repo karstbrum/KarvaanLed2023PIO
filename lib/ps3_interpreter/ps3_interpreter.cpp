@@ -177,14 +177,6 @@ void controller_handler::select(){
 
 };
 
-// checker to update statespace
-void controller_handler::statespace_checker(int mode_used, float fall_time, float rise_time){
-  if(controller_handler::check_statespace != mode_used){
-    controller_handler::check_statespace = mode_used;
-    led_object->set_statespace(fall_time, rise_time);
-  }
-}
-
 // make all modes
 void controller_handler::cross(){
     float freqdiv_led;
@@ -198,9 +190,7 @@ void controller_handler::cross(){
     }
     led_object->freqdiv = freqdiv_led;
 
-    controller_handler::statespace_checker(CROSS, 0, 0);
-
-    uint8_t clusters[] = {4, 5, 4, 6};
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
     uint8_t numClusters = sizeof(clusters);
     led_object->travelSides(states.color, 1, 0, 1, numClusters, clusters, 0, 1);
 };
