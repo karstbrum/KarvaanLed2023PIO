@@ -55,18 +55,15 @@ int loopTime = 0;
 // time to automatically switch to auto mode in milliseconds
 int auto_switch_time = 60000;
 
-// set statespace checker
-int check_statespace = -1;
-
 // check if switched to controller
 bool controller_switch = true;
 
 // define states 
 struct {
   uint8_t BPM = 120;
-  uint8_t mode = 3;
+  uint8_t mode = 0;
   uint8_t color = 0;
-  float brightness = 0.9;
+  float brightness = 0.7;
   } states;
 
 // set the initial states in the objects
@@ -199,6 +196,7 @@ void LightsTaskcode( void * pvParameters ){
 
       // allow some delay for idle task
       vTaskDelay(1);
+
       //Serial.println(millis()-loopTime);
 
     }
@@ -211,8 +209,8 @@ void ControllerTaskcode( void * pvParameters ){
   start_controller();
   // start task loop to keep open
   for(;;){
-    // make space for idle task by 1ms delay, make sure esp does not crash
-    //vTaskDelay(1);
+    // make space for idle task by 01ms delay, make sure esp does not crash
+    vTaskDelay(10);
   }
 }
 
@@ -229,7 +227,7 @@ void setup() {
                     NULL,        /* parameter of the task */
                     1,           /* priority of the task */
                     &ControllerTask,    /* Task handle to keep track of created task */
-                    1);          /* pin task to core 0 */                  
+                    0);          /* pin task to core 0 */                  
   delay(500);
 
   //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
@@ -240,7 +238,7 @@ void setup() {
                     NULL,        /* parameter of the task */
                     1,           /* priority of the task */
                     &LEDTask,     /* Task handle to keep track of created task */
-                    0);          /* pin task to core 1 */
+                    1);          /* pin task to core 1 */
   delay(500); 
 
   

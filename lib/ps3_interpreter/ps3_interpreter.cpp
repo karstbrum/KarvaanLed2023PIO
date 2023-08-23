@@ -178,13 +178,14 @@ void controller_handler::select(){
 };
 
 // make all modes
+// flash random pole, change speed only with left stick
 void controller_handler::cross(){
     float freqdiv_led;
-    float controller_value = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
+    float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
     if(controller_handler::controller_states[L_STICK_Y]<0){
-        freqdiv_led = 1 - abs(controller_value/150);
+        freqdiv_led = 1 - abs(controller_value_y/150);
     } else if(controller_handler::controller_states[L_STICK_Y]>0) {
-        freqdiv_led = 1 + abs(controller_value/25);
+        freqdiv_led = 1 + abs(controller_value_y/25);
     } else {
         freqdiv_led = 1;
     }
@@ -194,11 +195,53 @@ void controller_handler::cross(){
     uint8_t numClusters = sizeof(clusters);
     led_object->travelSides(states.color, 1, 0, 1, numClusters, clusters, 0, 1);
 };
+// flashing pixel, change speed and amount with left stick
 void controller_handler::square(){
-    
+    uint8_t main_color = states.color;
+    uint8_t flash_color = (main_color==1) ? 2 : 1;
+    uint8_t flash_chance;
+    float controller_value_x = static_cast<float>(controller_handler::controller_states[L_STICK_X]);
+    if(abs(controller_handler::controller_states[L_STICK_X])>1){
+        flash_chance = 20 + static_cast<uint8_t>(abs(controller_value_x/2));
+    } else {
+        flash_chance = 20;
+    }
+
+    float freqdiv_led;
+    float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
+    if(controller_handler::controller_states[L_STICK_Y]<0){
+        freqdiv_led = 1 - abs(controller_value_y/150);
+    } else if(controller_handler::controller_states[L_STICK_Y]>0) {
+        freqdiv_led = 1 + abs(controller_value_y/25);
+    } else {
+        freqdiv_led = 1;
+    }
+    led_object->freqdiv = freqdiv_led;
+    led_object->flashingPixels(main_color, flash_color, flash_chance);
 }; 
+// fill up from the bottom, change speed and phase 
 void controller_handler::triangle(){
-    
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    int direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    uint8_t numClusters = sizeof(clusters);
+    // determine phase dependend on the x value of L_STICK
+    float l_stick_norm = static_cast<float>(controller_handler::controller_states[L_STICK_X])/(numClusters*128);
+    float phase[numClusters] = {};
+    for(int k=0; k<numClusters; k++){
+        phase[k] = l_stick_norm*k;
+    }
+
+    float freqdiv_led;
+    float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
+    if(controller_handler::controller_states[L_STICK_Y]<0){
+        freqdiv_led = 1 - abs(controller_value_y/150);
+    } else if(controller_handler::controller_states[L_STICK_Y]>0) {
+        freqdiv_led = 1 + abs(controller_value_y/25);
+    } else {
+        freqdiv_led = 1;
+    }
+    led_object->freqdiv = freqdiv_led;
+    led_object->fillUp(states.color, 0, 0, numClusters, clusters, 1, direction, 1, phase);
 };
 void controller_handler::circle(){
     

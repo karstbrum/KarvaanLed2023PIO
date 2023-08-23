@@ -453,7 +453,7 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES_L];
+    uint16_t pixelsPerCluster[MAXSIDES_L];
     float clusterPhase[MAXSIDES_L];
 
     if (numClusters_ == 0) {
@@ -534,7 +534,7 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
                 sinOutput = 1 - sin(sinInput * 2 * PI);
             }
 
-            leadingPixel = static_cast<uint8_t>(travelRange * (sinOutput));
+            leadingPixel = static_cast<uint16_t>(travelRange * (sinOutput));
 
         }
         else if (fastOnlyUpDown) {
@@ -551,21 +551,21 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
                 sinOutput = sin((sinInput) * 2 * PI);
             }
 
-            leadingPixel = static_cast<uint8_t>(travelRange * (sinOutput));
+            leadingPixel = static_cast<uint16_t>(travelRange * (sinOutput));
 
         }
         else {
-            leadingPixel = static_cast<uint8_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
+            leadingPixel = static_cast<uint16_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
         }
 
         // endLastCluster is the end of the last Cluster
-        uint8_t startCluster = 0;
+        uint16_t startCluster = 0;
         for (uint16_t l = 0; l < k; l++) {
             startCluster += pixelsPerCluster[l];
         }
 
         // center is the center of the traveling light
-        uint8_t center = startCluster + leadingPixel;
+        uint16_t center = startCluster + leadingPixel;
 
         int startLED = (direction[k] == 1) ? startCluster : startCluster + leadingPixel;
         int endLED = (direction[k] == 1) ? startCluster + leadingPixel : startCluster + pixelsPerCluster[k] - 1;
