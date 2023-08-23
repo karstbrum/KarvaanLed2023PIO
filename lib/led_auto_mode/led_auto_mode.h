@@ -27,7 +27,7 @@ class Pixels {
         void activateColor();
  
         // set color
-        void setColor(uint8_t colorIndex);
+        void setColor(uint8_t colorIndex, float dim = 1);
 
         // dimmer values
         void setDimmer(float dimmerValue);
@@ -65,6 +65,12 @@ class Pixels {
             uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {}, bool setDirection = 0, int direction_[MAXSIDES_L] = {}, bool setPhase = 0, float phase[MAXSIDES_L] = {},
             int inverseDirection = 1);
 
+        // set sides on or off
+        void setCluster(uint8_t colorIndex, bool use_sides[MAXSIDES_L] = {});
+
+        // set sides on or off
+        void switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSIDES_L] = {}, bool use_sides2[MAXSIDES_L] = {});
+
         // variables
         int sideIndex = 0;
         // variables for pulse and updown
@@ -73,13 +79,16 @@ class Pixels {
         // frequency divider
         float freqdiv = 1;
 
+        // number of sides
+        uint8_t numSides;
+
     private:
 
         // basic functions
         void defineFirstColors();
 
         // full class variables
-        uint8_t numSides, pixelsPerSide[MAXSIDES];
+        uint8_t pixelsPerSide[MAXSIDES];
         uint16_t Ts, totalPixels;
         float BPM = 100;
 

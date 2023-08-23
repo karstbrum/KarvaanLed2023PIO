@@ -94,8 +94,8 @@ void Pixels::dimDown(float increment) {
 };
 
 // set color
-void Pixels::setColor(uint8_t colorIndex) {
-    strip->setColorsAll(colorIndex, 1);
+void Pixels::setColor(uint8_t colorIndex, float dim) {
+    strip->setColorsAll(colorIndex, dim);
 };
 
 
@@ -732,6 +732,56 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
 
         }
                     
+    }
+
+}
+
+void Pixels::setCluster(uint8_t colorIndex, bool use_sides[MAXSIDES_L]){
+
+    // count up on starting en ending pixel per side
+    uint16_t pixelStart = 0;
+    uint16_t pixelEnd = 0;
+
+    // set all off first
+    strip->setColorsAll(colorIndex, 0);
+
+    for (uint8_t k = 0; k < numSides; k++) {
+        pixelEnd = pixelStart + pixelsPerSide[k]-1;
+        if (use_sides[k]){
+            strip->setRange(pixelStart, pixelEnd, colorIndex, 1);
+            Serial.print(pixelStart);
+            Serial.print(", ");
+            Serial.println(pixelEnd);
+        }
+        pixelStart = pixelEnd+1;
+    }
+
+}
+
+void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSIDES_L], bool use_sides2[MAXSIDES_L]){
+
+    // count up on starting en ending pixel per side
+    uint16_t pixelStart = 0;
+    uint16_t pixelEnd = 0;
+
+    // iterate on pulse index
+    float Ts_ = Ts;
+    pulseIndex += ((Ts_ / 1000) * (BPM / 60)) / 2 / freqdiv; // Ts*BPS (s^1 * s^-1)
+    pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
+
+    bool switch_sides = (pulseIndex > 0.5) ? false : true;
+
+    // set all off first
+    strip->setColorsAll(color1, 0);
+
+    for (uint8_t k = 0; k < numSides; k++) {
+        pixelEnd = pixelStart + pixelsPerSide[k]-1;
+        if (use_sides1[k] && switch_sides){
+            strip->setRange(pixelStart, pixelEnd, color1, 1);
+        } else if (use_sides2[k] && !switch_sides) {
+            strip->setRange(pixelStart, pixelEnd, color2, 1);
+        }
+        pixelStart = pixelEnd+1;
     }
 
 }

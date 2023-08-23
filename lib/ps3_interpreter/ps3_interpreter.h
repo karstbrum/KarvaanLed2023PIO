@@ -96,6 +96,9 @@ class controller_handler {
         // set controller rumble
         void rumble(uint8_t times);
 
+        // set leds off 
+        void led_off();
+
         // states struct
         struct {
             uint8_t BPM;

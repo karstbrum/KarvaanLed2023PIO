@@ -275,10 +275,29 @@ void controller_handler::r_trigger(){
     
 };
 void controller_handler::l_bumper(){
+    bool set_sides[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     
+    if (controller_handler::controller_states[R_BUMPER] == 1){
+        for(int k=0; k<sizeof(set_sides); k++){
+            set_sides[k] = 1;
+        }
+    }
+
+    led_object->setCluster(states.color, set_sides);
+
 };
 void controller_handler::r_bumper(){
-    
+    bool set_sides[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    if (controller_handler::controller_states[L_BUMPER] == 1){
+        for(int k=0; k<sizeof(set_sides); k++){
+            set_sides[k] = 1;
+        }
+    }
+
+    led_object->setCluster(states.color, set_sides);
 };
 void controller_handler::sticks(){
     
@@ -287,9 +306,39 @@ void controller_handler::l_stick_press(){
     
 };
 void controller_handler::r_stick_press(){
-    
+    uint8_t color1 = 2; // red
+    uint8_t color2 = 3; // green
+    bool set_sides1[led_object->numSides];
+    bool set_sides2[led_object->numSides];
+    for(int k=0; k<led_object->numSides; k++){
+        if (k%2 == 1){
+            set_sides1[k] = true;
+            Serial.println(k);
+        } else {
+            set_sides2[k] = true;
+        }
+        
+    }
+    led_object->freqdiv = 2;
+    led_object->switchCluster(color1, color2, set_sides1, set_sides2);
 };
 
+// function to determine if lights need to be switched off
+void controller_handler::led_off(){
+    // always switch off if no input is toggled on
+    // loop through number of inputs
+    bool leave_on = false;
+    for(int k=0; k<INPUTS; k++){
+        // if any is toggled on, this will be true
+        leave_on = leave_on || controller_toggle[k];
+    };
+    if (!leave_on){
+        led_object->setColor(states.color, 0);
+    }
+
+    // reset frequency divider
+
+}
 
 // declare object
 controller_handler ctrl;
@@ -327,6 +376,7 @@ void controller_callbacks(){
         ctrl.controller_toggle[CROSS] = false;
         ctrl.controller_states[CROSS] = 0;
         ctrl.controller_use_time = millis();
+        ctrl.led_off();
     };
     if( Ps3.event.button_down.square ){
         if(ctrl.combination_parser(SQUARE)){
@@ -341,6 +391,7 @@ void controller_callbacks(){
         ctrl.controller_toggle[SQUARE] = false;
         ctrl.controller_states[SQUARE] = 0;
         ctrl.controller_use_time = millis();
+        ctrl.led_off();
     };
     if( Ps3.event.button_down.triangle ){
         if(ctrl.combination_parser(TRIANGLE)){
@@ -355,6 +406,7 @@ void controller_callbacks(){
         ctrl.controller_toggle[TRIANGLE] = false;
         ctrl.controller_states[TRIANGLE] = 0;
         ctrl.controller_use_time = millis();
+        ctrl.led_off();
     };
     if( Ps3.event.button_down.circle ){
         if(ctrl.combination_parser(CIRCLE)){
@@ -369,6 +421,7 @@ void controller_callbacks(){
         ctrl.controller_toggle[CIRCLE] = false;
         ctrl.controller_states[CIRCLE] = 0;
         ctrl.controller_use_time = millis();
+        ctrl.led_off();
     };
 
     // d pad
@@ -461,6 +514,7 @@ void controller_callbacks(){
         } else {
             ctrl.controller_toggle[L_BUMPER] = false;
             ctrl.controller_states[L_BUMPER] = 0;
+            ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();
@@ -472,6 +526,7 @@ void controller_callbacks(){
         } else {
             ctrl.controller_toggle[R_BUMPER] = false;
             ctrl.controller_states[R_BUMPER] = 0;
+            ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();
@@ -511,6 +566,7 @@ void controller_callbacks(){
             ctrl.controller_states[L_STICK_X] = 0;
             ctrl.controller_toggle[L_STICK_Y] = false;
             ctrl.controller_states[L_STICK_Y] = 0;
+            ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();
@@ -526,6 +582,7 @@ void controller_callbacks(){
             ctrl.controller_states[R_STICK_X] = 0;
             ctrl.controller_toggle[R_STICK_Y] = false;
             ctrl.controller_states[R_STICK_Y] = 0;
+            ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();
@@ -544,6 +601,7 @@ void controller_callbacks(){
         ctrl.controller_toggle[L_STICK_PRESS] = false;
         ctrl.controller_states[L_STICK_PRESS] = 0;
         ctrl.controller_use_time = millis();
+        ctrl.led_off();
     };
     if (Ps3.event.button_down.r3){
         if(ctrl.combination_parser(R_STICK_PRESS)){
@@ -557,6 +615,7 @@ void controller_callbacks(){
         ctrl.controller_toggle[R_STICK_PRESS] = false;
         ctrl.controller_states[R_STICK_PRESS] = 0;
         ctrl.controller_use_time = millis();
+        ctrl.led_off();
     };
 
 };
