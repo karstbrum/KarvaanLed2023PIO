@@ -37,9 +37,6 @@ class Pixels {
         // beats per minute
         void setBPM(float BPM_);
 
-        // rainbow mode
-        void Rainbow(bool moving = 0, int direction = 1);
-
         // pulsating modes
         void pulseSameColor(uint8_t colorIndex, bool fade = 0, float onValue = 0.4);
         void pulseFadeColor(uint8_t color1, uint8_t color2, bool fade = 0, float onValue = 0.4, uint8_t numClusters_ = 0, uint8_t clusters_[MAXSIDES_L] = {});
@@ -85,9 +82,6 @@ class Pixels {
         uint8_t numSides, pixelsPerSide[MAXSIDES];
         uint16_t Ts, totalPixels;
         float BPM = 100;
-
-        // variables for rainbow
-        int rainbowIndex = 0;
 
         uint8_t pulseColorIndex = 0;
 

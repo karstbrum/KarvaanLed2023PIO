@@ -150,6 +150,9 @@ void RGBW::setStrip() {
         for (uint16_t l = 0; l < LEDsPerPin[k]; l++) {      // For each pixel in strip.
             strip[k].setPixel(l, colorCode[pixelIndex]);        //  Set pixel color 
             pixelIndex += 1;
+            if (pixelIndex==1){
+                Serial.println(colorCode[pixelIndex]);
+            }
         };
         
     };

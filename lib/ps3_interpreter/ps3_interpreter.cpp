@@ -212,7 +212,7 @@ void controller_handler::square(){
     if(controller_handler::controller_states[L_STICK_Y]<0){
         freqdiv_led = 1 - abs(controller_value_y/150);
     } else if(controller_handler::controller_states[L_STICK_Y]>0) {
-        freqdiv_led = 1 + abs(controller_value_y/25);
+        freqdiv_led = 1 + abs(controller_value_y/60);
     } else {
         freqdiv_led = 1;
     }
@@ -234,17 +234,39 @@ void controller_handler::triangle(){
     float freqdiv_led;
     float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
     if(controller_handler::controller_states[L_STICK_Y]<0){
-        freqdiv_led = 1 - abs(controller_value_y/150);
+        freqdiv_led = 1 - abs(controller_value_y/200);
     } else if(controller_handler::controller_states[L_STICK_Y]>0) {
-        freqdiv_led = 1 + abs(controller_value_y/25);
+        freqdiv_led = 1 + abs(controller_value_y/200);
     } else {
         freqdiv_led = 1;
     }
     led_object->freqdiv = freqdiv_led;
     led_object->fillUp(states.color, 0, 0, numClusters, clusters, 1, direction, 1, phase);
 };
+// up down, change speed and inverse with left stick
 void controller_handler::circle(){
-    
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    int direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    uint8_t numClusters = sizeof(clusters);
+    bool inverse = true;
+    float l_stick_norm = static_cast<float>(controller_handler::controller_states[L_STICK_X])/(numClusters*128);
+    float phase[numClusters] = {};
+    for(int k=0; k<numClusters; k++){
+        phase[k] = l_stick_norm*k;
+    }
+    led_object->upDown(0.1, states.color, 0, 0, numClusters, clusters, 1, direction, inverse, 1, phase);
+
+    float freqdiv_led;
+    float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
+    if(controller_handler::controller_states[L_STICK_Y]<0){
+        freqdiv_led = 1 - abs(controller_value_y/200);
+    } else if(controller_handler::controller_states[L_STICK_Y]>0) {
+        freqdiv_led = 1 + abs(controller_value_y/200);
+    } else {
+        freqdiv_led = 1;
+    }
+    led_object->freqdiv = freqdiv_led;
+
 };
 void controller_handler::l_trigger(){
     

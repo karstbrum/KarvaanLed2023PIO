@@ -73,6 +73,10 @@ void set_initial_states(){
   LED.setColor(states.color);
   LED.setDimmer(states.brightness);
   Bulb.setDimmer(states.brightness);
+  // set default states, sync with controller
+  ctrl.default_settings(states.BPM, states.mode, states.color, states.brightness, 
+  MINBPM, MAXBPM, MAXMODES, MAXCOLORS);
+  
 }
 
 void start_controller(){ 
@@ -80,10 +84,6 @@ void start_controller(){
   // search for controller with this address
   char address[] = "aa:bb:cc:dd:ee:ff";
   setup_controller(address);
-
-  // set default states, sync with controller
-  ctrl.default_settings(states.BPM, states.mode, states.color, states.brightness, 
-  MINBPM, MAXBPM, MAXMODES, MAXCOLORS);
 
   // set the controller objects for controlling lights
   ctrl.set_objects(LED_pointer, Bulb_pointer);
@@ -105,6 +105,10 @@ void sync_states(){
     LED.setColor(states.color);
   }
   if (states.brightness != ctrl.states.brightness){
+    Serial.println(states.brightness);
+    Serial.println(", ");
+    Serial.println(ctrl.states.brightness);
+    
     states.brightness = ctrl.states.brightness;
     LED.setDimmer(states.brightness);
     Bulb.setDimmer(states.brightness);
