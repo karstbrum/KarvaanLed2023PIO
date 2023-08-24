@@ -792,6 +792,106 @@ void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSI
 
 }
 
+void Pixels::travelAround(int direction, uint8_t numColors, uint8_t colors[], bool horizontal_auto, bool vertical_auto, uint8_t numClusters, uint8_t clusters[], float cluster_locations[],  
+            float horizontal_size, float vertical_size, bool horizontal_fade, bool vertical_fade, bool use_horizontal_pos, float horizontal_pos, float vertical_pos){
+    
+    // iterate on pulse index, only needed if not manual
+    float Ts_ = Ts;
+    pulseIndex += direction * ((Ts_ / 1000) * (BPM / 60)) / freqdiv; // Ts*BPS (s^1 * s^-1)
+    pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
+    pulseIndex = pulseIndex < 0 ? pulseIndex + 1 : pulseIndex;
+
+    // determine clusters
+    uint8_t pixelsPerCluster[MAXSIDES_L];
+    uint8_t sideIndex = 0;
+    for (uint8_t k = 0; k < numClusters; k++) {
+        pixelsPerCluster[k] = 0;
+        for (uint8_t l = 0; l < clusters[k]; l++) {
+            pixelsPerCluster[k] += pixelsPerSide[sideIndex];
+            sideIndex += 1;
+        }
+    }
+
+    // if using horizontal position as input, overwrite pulse index
+    if (use_horizontal_pos){
+        pulseIndex = horizontal_pos;
+    }
+
+    //set the correct and direction (direction for fastup etc.)
+    float phase[numColors];
+    for (uint8_t k = 0; k < numColors; k++) {
+        phase[k] = k/static_cast<float>(numColors);
+    }
+
+    // set all off first
+    strip->setColorsAll(colors[0], 0);
+
+    for (uint16_t k = 0; k < numColors; k++) {
+
+        float travelRange = 1;
+        float centerFloat_hor;
+        float centerFloat_ver = vertical_pos;
+
+        // value between 0 and 1
+        centerFloat_hor = pulseIndex + phase[k];
+        centerFloat_hor = (centerFloat_hor>1) ? centerFloat_hor-1 : centerFloat_hor;
+
+        // get start and end pixel
+    	uint16_t pixelStart = 0;
+        uint16_t pixelEnd = 0;
+
+        // loop through clusters
+        for (uint8_t l = 0; l < numClusters; l++){
+    
+            // end pixel update update
+            pixelEnd = pixelStart + pixelsPerCluster[k]-1;
+
+            // when centerfloat is low (<0) value or high (>1) shift location
+            float shift = 0;
+            if ((centerFloat_hor-horizontal_size/2) < 0){
+                float shift = centerFloat_hor - horizontal_size/2;
+                if (cluster_locations[l] > (1+shift)){
+                    cluster_locations[l] = cluster_locations[l]-1;
+                }
+
+            } else if ((centerFloat_hor+horizontal_size/2) > 1){
+                float shift = centerFloat_hor + horizontal_size/2 - 1;
+                if (cluster_locations[l] < (shift)){
+                    cluster_locations[l] = cluster_locations[l]+1;
+                }
+            }
+
+            // check if cluster is in range to light up,  wrapping is not needed
+            if ((cluster_locations[l] > (centerFloat_hor-horizontal_size/2)) && (cluster_locations[l] < (centerFloat_hor+horizontal_size/2))){
+
+                // determine the value of of the center position by relative position in the window, dependend on fade
+                float rel_pos_hor = (cluster_locations[l]-(centerFloat_hor-horizontal_size/2))/horizontal_size;
+                float centervalue_ver = (horizontal_fade) ? 0.5-0.5*cos(rel_pos_hor*2*PI) : 1;
+
+                // determine value of all lights in the cluster based on value of center
+                // loop through pixels in cluster and determine value
+                for (float m = 0; m < pixelsPerCluster[l]; m++){
+
+                    float rel_pixel_pos = m/static_cast<float>(pixelsPerCluster[l]-1);
+
+                    // check if pixel is in range
+                    if ((rel_pixel_pos > (centerFloat_ver-vertical_size/2)) && (rel_pixel_pos < (centerFloat_ver+vertical_size/2))){
+
+                        // determine relative position and corresponding dimmer value
+                        float rel_pos_ver = (rel_pixel_pos-(centerFloat_ver-vertical_size/2))/vertical_size;
+                        float pixelvalue_ver = (vertical_fade) ? 0.5-0.5*cos(rel_pos_ver*2*PI) : 1;
+                        strip->setColorsIndividualFixed(pixelStart+m, colors[k], pixelvalue_ver*centervalue_ver);
+
+                    }
+                }
+            }
+
+            pixelStart = pixelEnd+1;
+
+        }
+    }
+}
+
 
 // set the color
 void Pixels::activateColor() {

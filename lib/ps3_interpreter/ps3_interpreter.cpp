@@ -106,7 +106,8 @@ void controller_handler::function_mode_selector(){
     if ((controller_handler::controller_toggle[L_STICK_X] || controller_handler::controller_toggle[L_STICK_Y] || 
     controller_handler::controller_toggle[R_STICK_X] || controller_handler::controller_toggle[R_STICK_Y]) && 
     !controller_handler::controller_toggle[CROSS] && !controller_handler::controller_toggle[SQUARE] && 
-    !controller_handler::controller_toggle[TRIANGLE] && !controller_handler::controller_toggle[CIRCLE]){
+    !controller_handler::controller_toggle[TRIANGLE] && !controller_handler::controller_toggle[CIRCLE] && 
+    !controller_handler::controller_toggle[R_STICK_PRESS] && !controller_handler::controller_toggle[L_STICK_PRESS]){
         controller_handler::sticks();
     }
     if (controller_handler::controller_toggle[L_STICK_PRESS]){
@@ -254,19 +255,18 @@ void controller_handler::circle(){
     for(int k=0; k<numClusters; k++){
         phase[k] = l_stick_norm*k;
     }
-    led_object->upDown(0.1, states.color, 0, 0, numClusters, clusters, 1, direction, inverse, 1, phase);
-
+    
     float freqdiv_led;
     float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
-    if(controller_handler::controller_states[L_STICK_Y]<0){
+    if(controller_value_y<0){
         freqdiv_led = 1 - abs(controller_value_y/200);
-    } else if(controller_handler::controller_states[L_STICK_Y]>0) {
+    } else if(controller_value_y>0) {
         freqdiv_led = 1 + abs(controller_value_y/200);
     } else {
         freqdiv_led = 1;
     }
     led_object->freqdiv = freqdiv_led;
-
+    led_object->upDown(0.25, states.color, 0, 0, numClusters, clusters, 1, direction, inverse, 1, phase);
 };
 void controller_handler::l_trigger(){
     
@@ -300,14 +300,70 @@ void controller_handler::r_bumper(){
     led_object->setCluster(states.color, set_sides);
 };
 void controller_handler::sticks(){
-    
+    // uint8_t colors[] = {1, 2, 3};
+    // uint8_t numColors = sizeof(colors);
+    // bool horizontal_auto = true;
+    // bool vertical_auto = false;
+    // uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    // uint8_t numClusters = sizeof(clusters);
+    // float cluster_locations[] = {0/11, 1/11, 2/11, 3/11, 4/11, 5/11, 6/11, 7/11, 8/11, 9/11, 10/11};
+    // float horizontal_size = 0.1;
+    // float vertical_size = 0.9;
+    // bool horizontal_fade = true;
+    // bool vertical_fade = true;
+    // bool use_horizontal_pos = true; // make true
+
+    // // determine horizontal position between 0 and 1 with left stick
+    // float horizontal_pos = 0; // later use left stick value for this
+
+    // // determin vertical position between 0 and 1 with right stick
+    // float vertical_pos = 0; // later use right stick value for this
+
+    // led_object->travelAround(numColors, colors, horizontal_auto, vertical_auto, numClusters, clusters, cluster_locations,  
+    //         horizontal_size, vertical_size, horizontal_fade, vertical_fade, use_horizontal_pos, horizontal_pos, vertical_pos);
 };
 void controller_handler::l_stick_press(){
+
+    uint8_t colors[] = {1, 2, 3};
+    uint8_t numColors = sizeof(colors);
+    bool horizontal_auto = true;
+    bool vertical_auto = false;
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    uint8_t numClusters = sizeof(clusters);
+    float cluster_locations[] = {0, 0.09, 0.18, 0.27, 0.36, 0.46, 0.55, 0.64, 0.73, 0.82, 0.91};
+    float horizontal_size = 0.1;
+    float vertical_size = 0.9;
+    bool horizontal_fade = true;
+    bool vertical_fade = true;
     
+    // direction with x
+    int direction;
+    float controller_value_x = static_cast<float>(controller_handler::controller_states[R_STICK_X]);
+    if(controller_value_x<-10){
+        direction = -1;
+    } else if(controller_value_x>10) {
+        direction = 1;
+    } else {
+        direction = 0;
+    }
+    // speed with y 
+    float freqdiv_led;
+    float controller_value_y = static_cast<float>(controller_handler::controller_states[R_STICK_Y]);
+    if(controller_value_y<0){
+        freqdiv_led = 5 - abs(controller_value_y/100);
+    } else if(controller_value_y>0) {
+        freqdiv_led = 5 + abs(controller_value_y/100);
+    } else {
+        freqdiv_led = 5;
+    }
+
+    led_object->freqdiv = freqdiv_led;
+    led_object->travelAround(direction, numColors, colors, horizontal_auto, vertical_auto, numClusters, clusters, cluster_locations,  
+            horizontal_size, vertical_size, horizontal_fade, vertical_fade);
 };
 void controller_handler::r_stick_press(){
     uint8_t color1 = 1; // red
-    uint8_t color2 = 2; // green
+    uint8_t color2 = (states.color==1) ? 2 : states.color; // green
     bool set_sides1[led_object->numSides];
     bool set_sides2[led_object->numSides];
     for(int k=0; k<led_object->numSides; k++){
@@ -320,7 +376,16 @@ void controller_handler::r_stick_press(){
         }
         
     }
-    led_object->freqdiv = 0.5;
+    float freqdiv_led;
+    float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
+    if(controller_handler::controller_states[L_STICK_Y]<0){
+        freqdiv_led = 1 - abs(controller_value_y/200);
+    } else if(controller_handler::controller_states[L_STICK_Y]>0) {
+        freqdiv_led = 1 + abs(controller_value_y/200);
+    } else {
+        freqdiv_led = 1;
+    }
+    led_object->freqdiv = freqdiv_led;
     led_object->switchCluster(color1, color2, set_sides1, set_sides2);
 };
 
