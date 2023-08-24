@@ -300,48 +300,90 @@ void controller_handler::r_bumper(){
     led_object->setCluster(states.color, set_sides);
 };
 void controller_handler::sticks(){
-    // uint8_t colors[] = {1, 2, 3};
-    // uint8_t numColors = sizeof(colors);
-    // bool horizontal_auto = true;
-    // bool vertical_auto = false;
-    // uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-    // uint8_t numClusters = sizeof(clusters);
-    // float cluster_locations[] = {0/11, 1/11, 2/11, 3/11, 4/11, 5/11, 6/11, 7/11, 8/11, 9/11, 10/11};
-    // float horizontal_size = 0.1;
-    // float vertical_size = 0.9;
-    // bool horizontal_fade = true;
-    // bool vertical_fade = true;
-    // bool use_horizontal_pos = true; // make true
 
-    // // determine horizontal position between 0 and 1 with left stick
-    // float horizontal_pos = 0; // later use left stick value for this
+    // direction will not be used
+    int direction = 0;
+    uint8_t colors[] = {states.color};
+    uint8_t numColors = sizeof(colors);
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    uint8_t numClusters = sizeof(clusters);
+    float cluster_locations[] = {0, 0.09, 0.18, 0.27, 0.36, 0.46, 0.55, 0.64, 0.73, 0.82, 0.91};
+    bool vertical_fade = true;
 
-    // // determin vertical position between 0 and 1 with right stick
-    // float vertical_pos = 0; // later use right stick value for this
+    // determine horizontal position between 0 and 1 with left stick
+    float horizontal_pos = 0; // later use left stick value for this
+    float hor_x = static_cast<float>(controller_handler::controller_states[L_STICK_X])/128;
+    float hor_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y])/128;
+    float ver_y = static_cast<float>(controller_handler::controller_states[R_STICK_Y])/128;
 
-    // led_object->travelAround(numColors, colors, horizontal_auto, vertical_auto, numClusters, clusters, cluster_locations,  
-    //         horizontal_size, vertical_size, horizontal_fade, vertical_fade, use_horizontal_pos, horizontal_pos, vertical_pos);
+    // dertermine horizontal
+    float horizontal_offset = 0;
+
+    if (hor_x==0){
+        if (hor_y > 0){
+            horizontal_pos = 0.25;
+        } else if (hor_y < 0){
+            horizontal_pos = 0.75;
+        }
+    } else if (hor_x > 0){
+        if (hor_y > 0){
+            horizontal_pos = atan(abs(hor_y)/abs(hor_x))/(2*PI);
+        } else if (hor_y < 0){
+            horizontal_pos = 1-atan(abs(hor_y)/abs(hor_x))/(2*PI);
+        } else {
+            horizontal_pos = 0;
+        }
+    } else if (hor_x < 0){
+        if (hor_y > 0){
+            horizontal_pos = 0.5-atan(abs(hor_y)/abs(hor_x))/(2*PI);
+        } else if (hor_y < 0){
+            horizontal_pos = 0.5+atan(abs(hor_y)/abs(hor_x))/(2*PI); // alleen deze nog
+        } else {
+            horizontal_pos = 0.5;
+        }
+    }
+    
+    // determine vertical
+    float vertical_pos = 0.5 + ver_y/2;
+
+    float horizontal_size ;
+    float vertical_size ;
+    bool horizontal_fade;
+    bool use_horizontal_pos; 
+    // if only vertical position is adjusted
+    if (hor_x==0 && hor_y==0){
+        horizontal_size = 1;
+        vertical_size = 0.95;
+        horizontal_fade = false;
+        use_horizontal_pos = false; 
+    } else {
+        horizontal_size = 0.3;
+        vertical_size = 0.95;
+        horizontal_fade = true;
+        use_horizontal_pos = true; 
+    }
+    led_object->travelAround(direction, numColors, colors, numClusters, clusters, cluster_locations,  
+            horizontal_size, vertical_size, horizontal_fade, vertical_fade, use_horizontal_pos, horizontal_pos, vertical_pos);
+
 };
 void controller_handler::l_stick_press(){
 
     uint8_t colors[] = {1, 2, 3};
     uint8_t numColors = sizeof(colors);
-    bool horizontal_auto = true;
-    bool vertical_auto = false;
     uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
     uint8_t numClusters = sizeof(clusters);
     float cluster_locations[] = {0, 0.09, 0.18, 0.27, 0.36, 0.46, 0.55, 0.64, 0.73, 0.82, 0.91};
-    float horizontal_size = 0.1;
-    float vertical_size = 0.9;
+    float horizontal_size = 0.25;
+    float vertical_size = 0.95;
     bool horizontal_fade = true;
     bool vertical_fade = true;
     
     // direction with x
     int direction;
     float controller_value_x = static_cast<float>(controller_handler::controller_states[R_STICK_X]);
-    if(controller_value_x<-10){
+    if(controller_value_x<-2){
         direction = -1;
-    } else if(controller_value_x>10) {
+    } else if(controller_value_x>2) {
         direction = 1;
     } else {
         direction = 0;
@@ -350,15 +392,15 @@ void controller_handler::l_stick_press(){
     float freqdiv_led;
     float controller_value_y = static_cast<float>(controller_handler::controller_states[R_STICK_Y]);
     if(controller_value_y<0){
-        freqdiv_led = 5 - abs(controller_value_y/100);
+        freqdiv_led = 5 - abs(controller_value_y/50);
     } else if(controller_value_y>0) {
-        freqdiv_led = 5 + abs(controller_value_y/100);
+        freqdiv_led = 5 + abs(controller_value_y/50);
     } else {
         freqdiv_led = 5;
     }
 
     led_object->freqdiv = freqdiv_led;
-    led_object->travelAround(direction, numColors, colors, horizontal_auto, vertical_auto, numClusters, clusters, cluster_locations,  
+    led_object->travelAround(direction, numColors, colors, numClusters, clusters, cluster_locations,  
             horizontal_size, vertical_size, horizontal_fade, vertical_fade);
 };
 void controller_handler::r_stick_press(){
@@ -648,7 +690,7 @@ void controller_callbacks(){
             ctrl.controller_states[R_STICK_X] = 0;
             ctrl.controller_toggle[R_STICK_Y] = false;
             ctrl.controller_states[R_STICK_Y] = 0;
-            ctrl.led_off();
+            // dont use here: ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();

@@ -792,7 +792,7 @@ void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSI
 
 }
 
-void Pixels::travelAround(int direction, uint8_t numColors, uint8_t colors[], bool horizontal_auto, bool vertical_auto, uint8_t numClusters, uint8_t clusters[], float cluster_locations[],  
+void Pixels::travelAround(int direction, uint8_t numColors, uint8_t colors[], uint8_t numClusters, uint8_t clusters[], float cluster_locations[],  
             float horizontal_size, float vertical_size, bool horizontal_fade, bool vertical_fade, bool use_horizontal_pos, float horizontal_pos, float vertical_pos){
     
     // iterate on pulse index, only needed if not manual

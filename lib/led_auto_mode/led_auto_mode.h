@@ -72,7 +72,7 @@ class Pixels {
         void switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSIDES_L] = {}, bool use_sides2[MAXSIDES_L] = {});
 
         // travel around (used for sticks)
-        void travelAround(int direction, uint8_t numColors, uint8_t colors[MAXSIDES_L], bool horizontal_auto, bool vertical_auto, uint8_t numClusters, uint8_t clusters[MAXSIDES_L], float cluster_locations[MAXSIDES_L],  
+        void travelAround(int direction, uint8_t numColors, uint8_t colors[MAXSIDES_L], uint8_t numClusters, uint8_t clusters[MAXSIDES_L], float cluster_locations[MAXSIDES_L],  
             float horizontal_size = 0.1, float vertical_size = 1, bool horizontal_fade = true, bool vertical_fade = true, bool use_horizontal_pos = false, float horizontal_pos = 0, float vertical_pos = 0.5);
 
         // variables
