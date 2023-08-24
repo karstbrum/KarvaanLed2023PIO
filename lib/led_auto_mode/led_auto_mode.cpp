@@ -835,7 +835,7 @@ void Pixels::travelAround(int direction, uint8_t numColors, uint8_t colors[], ui
         for (uint8_t l = 0; l < numClusters; l++){
     
             // end pixel update update
-            pixelEnd = pixelStart + pixelsPerCluster[k]-1;
+            pixelEnd = pixelStart + pixelsPerCluster[l]-1;
 
             // when centerfloat is low (<0) value or high (>1) shift location
             float shift = 0;

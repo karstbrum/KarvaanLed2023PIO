@@ -6,7 +6,7 @@
 #include "ps3_interpreter.h"
 
 // Sampling time (Ts)
-#define Ts 50
+#define Ts 40
 
 // max numbers for settings
 #define MAXCOLORS 10
@@ -21,18 +21,11 @@ TaskHandle_t LEDTask;
 uint16_t LEDsPerSide[] = {18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
                          12, 13, 17, 17, 12, 12, 13, 13, 17,
                          12, 13, 13, 12, 12, 13, 13, 13, 13, 12};
-uint8_t numSides = sizeof(LEDsPerSide);
+uint8_t numSides = sizeof(LEDsPerSide)/sizeof(uint16_t);
 uint8_t sidesPerPin[] = {22, 9, 10};
 uint8_t LEDPins[] = {26, 13, 14};
 uint8_t numPins = sizeof(LEDPins);
 Pixels LED(numSides, LEDsPerSide, numPins, sidesPerPin, LEDPins, Ts);
-
-// uint16_t LEDsPerSide[] = {18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,};
-// uint8_t numSides = sizeof(LEDsPerSide);
-// uint8_t sidesPerPin[] = {22};
-// uint8_t LEDPins[] = {26};
-// uint8_t numPins = sizeof(LEDPins);
-// Pixels LED(numSides, LEDsPerSide, numPins, sidesPerPin, LEDPins, Ts);
 
 // SETUP PART FOR BULB
 //bulbs(bulbpins, numCombinations, BulbsPerCombination, Ts);
@@ -194,8 +187,6 @@ void LightsTaskcode( void * pvParameters ){
 
       // allow some delay for idle task
       vTaskDelay(5);
-
-      Serial.println(millis()-loopTime);
 
     }
 
