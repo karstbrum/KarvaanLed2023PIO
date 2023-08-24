@@ -6,9 +6,7 @@
 #include "ps3_interpreter.h"
 
 // Sampling time (Ts)
-#define Ts 25
-// number of ms before next loop iteration which allows 1ms task delay
-#define delay_ms 5
+#define Ts 50
 
 // max numbers for settings
 #define MAXCOLORS 10
@@ -20,21 +18,21 @@
 TaskHandle_t ControllerTask;
 TaskHandle_t LEDTask;
 
-// SETUP PART FOR LED
-// Pixels(numSides, pixelsPerSide, pixelsRing, LEDpin, Ts)
-// uint8_t LEDsPerSide[] = {12, 13, 17, 17, 12, 12, 13, 13, 17, 
-//                          12, 13, 13, 12, 12, 13, 13, 13, 13, 12};
-// uint8_t numSides = sizeof(LEDsPerSide);
-// uint8_t sidesPerPin[] = {9, 10};
-// uint8_t LEDPins[] = {13, 14};
-// uint8_t numPins = sizeof(LEDPins);
-
-uint8_t LEDsPerSide[] = {18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18};
+uint16_t LEDsPerSide[] = {18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+                         12, 13, 17, 17, 12, 12, 13, 13, 17,
+                         12, 13, 13, 12, 12, 13, 13, 13, 13, 12};
 uint8_t numSides = sizeof(LEDsPerSide);
-uint8_t sidesPerPin[] = {22};
-uint8_t LEDPins[] = {13};
+uint8_t sidesPerPin[] = {22, 9, 10};
+uint8_t LEDPins[] = {26, 13, 14};
 uint8_t numPins = sizeof(LEDPins);
 Pixels LED(numSides, LEDsPerSide, numPins, sidesPerPin, LEDPins, Ts);
+
+// uint16_t LEDsPerSide[] = {18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,};
+// uint8_t numSides = sizeof(LEDsPerSide);
+// uint8_t sidesPerPin[] = {22};
+// uint8_t LEDPins[] = {26};
+// uint8_t numPins = sizeof(LEDPins);
+// Pixels LED(numSides, LEDsPerSide, numPins, sidesPerPin, LEDPins, Ts);
 
 // SETUP PART FOR BULB
 //bulbs(bulbpins, numCombinations, BulbsPerCombination, Ts);
@@ -105,10 +103,6 @@ void sync_states(){
     LED.setColor(states.color);
   }
   if (states.brightness != ctrl.states.brightness){
-    Serial.println(states.brightness);
-    Serial.println(", ");
-    Serial.println(ctrl.states.brightness);
-    
     states.brightness = ctrl.states.brightness;
     LED.setDimmer(states.brightness);
     Bulb.setDimmer(states.brightness);
@@ -154,8 +148,8 @@ void auto_functions(){
       Bulb.pulse(1);
       break;}
     case 3: {// travel up and down wiht band of 100% pixels, 3 bulbs with fading brightness
-      uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-      int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+      uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
+      int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
       uint8_t numClusters = sizeof(clusters);
       LED.upDown(0.3, states.color, 1, 0, numClusters, clusters, 1, Direction);
       // Bulb.upDown(1, 1, 1);
@@ -199,9 +193,9 @@ void LightsTaskcode( void * pvParameters ){
       }
 
       // allow some delay for idle task
-      vTaskDelay(1);
+      vTaskDelay(5);
 
-      //Serial.println(millis()-loopTime);
+      Serial.println(millis()-loopTime);
 
     }
 
@@ -213,7 +207,7 @@ void ControllerTaskcode( void * pvParameters ){
   start_controller();
   // start task loop to keep open
   for(;;){
-    // make space for idle task by 01ms delay, make sure esp does not crash
+    // make space for idle task by 10ms delay, make sure esp does not crash
     vTaskDelay(10);
   }
 }

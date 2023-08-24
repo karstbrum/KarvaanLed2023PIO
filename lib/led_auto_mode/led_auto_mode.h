@@ -21,7 +21,7 @@ class Pixels {
 
     public:
         // constructor
-        Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], uint8_t LEDPin_[], uint16_t Ts_);
+        Pixels(uint8_t numSides_, uint16_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], uint8_t LEDPin_[], float Ts_);
 
         // display current color
         void activateColor();
@@ -92,9 +92,10 @@ class Pixels {
         void defineFirstColors();
 
         // full class variables
-        uint8_t pixelsPerSide[MAXSIDES];
-        uint16_t Ts, totalPixels;
+        uint16_t pixelsPerSide[MAXSIDES];
+        uint16_t totalPixels;
         float BPM = 100;
+        float Ts;
 
         uint8_t pulseColorIndex = 0;
 

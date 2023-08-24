@@ -192,8 +192,11 @@ void controller_handler::cross(){
     }
     led_object->freqdiv = freqdiv_led;
 
-    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                          2, 2, 2, 3, 
+                          2, 2, 2, 2, 2};
     uint8_t numClusters = sizeof(clusters);
+    Serial.println("hoi");
     led_object->travelSides(states.color, 1, 0, 1, numClusters, clusters, 0, 1);
 };
 // flashing pixel, change speed and amount with left stick
@@ -222,8 +225,12 @@ void controller_handler::square(){
 }; 
 // fill up from the bottom, change speed and phase 
 void controller_handler::triangle(){
-    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-    int direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                          2, 2, 2, 3, 
+                          2, 2, 2, 2, 2};
+    int direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                       1, -1, 1, -1, 
+                       -1, 1, 1, -1, 1};
     uint8_t numClusters = sizeof(clusters);
     // determine phase dependend on the x value of L_STICK
     float l_stick_norm = static_cast<float>(controller_handler::controller_states[L_STICK_X])/(numClusters*128);
@@ -246,8 +253,8 @@ void controller_handler::triangle(){
 };
 // up down, change speed and inverse with left stick
 void controller_handler::circle(){
-    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-    int direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
+    int direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
     uint8_t numClusters = sizeof(clusters);
     bool inverse = true;
     float l_stick_norm = static_cast<float>(controller_handler::controller_states[L_STICK_X])/(numClusters*128);
@@ -275,8 +282,8 @@ void controller_handler::r_trigger(){
     
 };
 void controller_handler::l_bumper(){
-    bool set_sides[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bool set_sides[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0};
     
     if (controller_handler::controller_states[R_BUMPER] == 1){
         for(int k=0; k<sizeof(set_sides); k++){
@@ -288,8 +295,8 @@ void controller_handler::l_bumper(){
 
 };
 void controller_handler::r_bumper(){
-    bool set_sides[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    bool set_sides[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1};
 
     if (controller_handler::controller_states[L_BUMPER] == 1){
         for(int k=0; k<sizeof(set_sides); k++){
@@ -305,9 +312,15 @@ void controller_handler::sticks(){
     int direction = 0;
     uint8_t colors[] = {states.color};
     uint8_t numColors = sizeof(colors);
-    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
     uint8_t numClusters = sizeof(clusters);
-    float cluster_locations[] = {0, 0.09, 0.18, 0.27, 0.36, 0.46, 0.55, 0.64, 0.73, 0.82, 0.91};
+    float cluster_degrees[] = {30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 355, 356, 357, 358, 2, 3, 4, 5, 6};
+    uint8_t cluster_size = sizeof(cluster_degrees);
+    float cluster_locations[cluster_size];
+    for (uint8_t k=0; k<cluster_size; k++){
+        cluster_locations[k] = cluster_degrees[k]/360;
+    }
+
     bool vertical_fade = true;
 
     // determine horizontal position between 0 and 1 with left stick
@@ -342,7 +355,7 @@ void controller_handler::sticks(){
             horizontal_pos = 0.5;
         }
     }
-    
+
     // determine vertical
     float vertical_pos = 0.5 + ver_y/2;
 
@@ -370,9 +383,14 @@ void controller_handler::l_stick_press(){
 
     uint8_t colors[] = {1, 2, 3};
     uint8_t numColors = sizeof(colors);
-    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
     uint8_t numClusters = sizeof(clusters);
-    float cluster_locations[] = {0, 0.09, 0.18, 0.27, 0.36, 0.46, 0.55, 0.64, 0.73, 0.82, 0.91};
+    float cluster_degrees[] = {30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 355, 356, 357, 358, 2, 3, 4, 5, 6};
+    uint8_t cluster_size = sizeof(cluster_degrees);
+    float cluster_locations[cluster_size];
+    for (int k=0; k<cluster_size; k++){
+        cluster_locations[k] = cluster_degrees[k]/360;
+    }
     float horizontal_size = 0.25;
     float vertical_size = 0.95;
     bool horizontal_fade = true;
@@ -416,8 +434,23 @@ void controller_handler::r_stick_press(){
             set_sides1[k] = false;
             set_sides2[k] = true;
         }
-        
     }
+    // adjust for the last 13 sides, starting from 29
+    set_sides1[29] = true; set_sides2[29] = false; // R
+    set_sides1[30] = true; set_sides2[30] = false;
+    set_sides1[31] = false; set_sides2[31] = true;
+    set_sides1[32] = true; set_sides2[32] = false; // V
+    set_sides1[33] = false; set_sides2[33] = true;
+    set_sides1[34] = false; set_sides2[34] = true;
+    set_sides1[35] = true; set_sides2[35] = false; 
+    set_sides1[36] = false; set_sides2[36] = true; // N
+    set_sides1[37] = true; set_sides2[37] = false; 
+    set_sides1[38] = true; set_sides2[38] = false; 
+    set_sides1[39] = false; set_sides2[39] = true;
+    set_sides1[40] = false; set_sides2[40] = true;
+    set_sides1[41] = true; set_sides2[41] = false; 
+
+
     float freqdiv_led;
     float controller_value_y = static_cast<float>(controller_handler::controller_states[L_STICK_Y]);
     if(controller_handler::controller_states[L_STICK_Y]<0){

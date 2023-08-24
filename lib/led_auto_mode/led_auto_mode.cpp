@@ -11,7 +11,7 @@
 #include <random>
 
 
-Pixels::Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], uint8_t LEDPin_[], uint16_t Ts_) {
+Pixels::Pixels(uint8_t numSides_, uint16_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], uint8_t LEDPin_[], float Ts_) {
 
     Ts = Ts_; // sampling time
 
@@ -749,9 +749,6 @@ void Pixels::setCluster(uint8_t colorIndex, bool use_sides[MAXSIDES_L]){
         pixelEnd = pixelStart + pixelsPerSide[k]-1;
         if (use_sides[k]){
             strip->setRange(pixelStart, pixelEnd, colorIndex, 1);
-            Serial.print(pixelStart);
-            Serial.print(", ");
-            Serial.println(pixelEnd);
         }
         pixelStart = pixelEnd+1;
     }
@@ -778,14 +775,8 @@ void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSI
         pixelEnd = pixelStart + pixelsPerSide[k]-1;
         if (use_sides1[k] && switch_sides){
             strip->setRange(pixelStart, pixelEnd, color1, 1);
-            // Serial.print(pixelStart);
-            // Serial.print(", ");
-            // Serial.println(pixelEnd);
         } else if (use_sides2[k] && !switch_sides) {
             strip->setRange(pixelStart, pixelEnd, color2, 1);
-            // Serial.print(pixelStart);
-            // Serial.print(", ");
-            // Serial.println(pixelEnd);
         }
         pixelStart = pixelEnd+1;
     }

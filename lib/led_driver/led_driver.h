@@ -11,11 +11,13 @@
 #include <math.h>
 
 #define MAXNUMCOLORS 100
-#define MAXNUMPIXELS 500
-#define MAXSIDES 50
+#define MAXNUMPIXELS 1000
+#define MAXSIDES 100
+#define MAXPINS 5
 
 #define RISETIME 1
 #define FALLTIME 0.1
+
 
 class Strips {
 
@@ -55,8 +57,8 @@ class RGBW {
         void setColorsAll(uint8_t color = 0, float extraDim = 1);
 
         // set single pixel
-        void setColorsIndividual(int k, float white, float red, float green, float blue, float extraDimmer = 1);
-        void setColorsIndividualFixed(int k, uint8_t color = 0, float extraDim = 1);
+        void setColorsIndividual(uint16_t k, float white, float red, float green, float blue, float extraDimmer = 1);
+        void setColorsIndividualFixed(uint16_t k, uint8_t color = 0, float extraDim = 1);
 
         // set range of lights 
         // set start and end
@@ -72,7 +74,6 @@ class RGBW {
         float dimmer, prevDimmer;
 
         uint8_t standardColor = 0;  //index of current standard color
-        uint8_t travelIndex = 0;
         uint16_t numLEDs, Ts;
         uint8_t numOfColors = 0;
 
@@ -89,7 +90,7 @@ class RGBW {
         
         Adafruit_NeoPixel* LED;
 
-        Strips strip[10];
+        Strips strip[MAXPINS];
 
 };
 

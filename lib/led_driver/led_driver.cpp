@@ -70,21 +70,22 @@ void RGBW::changeAddedColor(uint8_t W, uint8_t R, uint8_t G, uint8_t B, uint8_t 
 
 void RGBW::setColorsAll(uint8_t color, float extraDim) {
 
-    for (int k = 0; k < numLEDs; k++) {
+    for (uint16_t k = 0; k < numLEDs; k++) {
 
         RGBW::setColorsIndividual(k, colors[color][0], colors[color][1], colors[color][2], colors[color][3], extraDim);
 
     };
 };
 
-void RGBW::setColorsIndividualFixed(int k, uint8_t color, float extraDim) {
+void RGBW::setColorsIndividualFixed(uint16_t k, uint8_t color, float extraDim) {
 
     RGBW::setColorsIndividual(k, colors[color][0], colors[color][1], colors[color][2], colors[color][3], extraDim);
 
 }
 
-void RGBW::setColorsIndividual(int k, float white, float red, float green, float blue, float extraDimmer) {
+void RGBW::setColorsIndividual(uint16_t k, float white, float red, float green, float blue, float extraDimmer) {
 
+    
     RGBWStates[k][0] = static_cast<uint8_t>(dimmer * extraDimmer * white);
     RGBWStates[k][1] = static_cast<uint8_t>(dimmer * extraDimmer * red);
     RGBWStates[k][2] = static_cast<uint8_t>(dimmer * extraDimmer * green);
@@ -95,12 +96,20 @@ void RGBW::setColorsIndividual(int k, float white, float red, float green, float
         (RGBWStates[k][2] << 8) |
         RGBWStates[k][3];
 
+    // if(k==0){
+    //     Serial.print(k);
+    //     Serial.print(", ");
+    //     Serial.println(colorCode[k]);
+    // }
+    
+
+
 };
 
 
 void RGBW::setRange(uint16_t startLED, uint16_t endLED, uint8_t color, float extraDim) {
 
-    for (int k = startLED; k <= endLED; k++) { // For each pixel in range
+    for (uint16_t k = startLED; k <= endLED; k++) { // For each pixel in range
 
         RGBW::setColorsIndividual(k, colors[color][0], colors[color][1], colors[color][2], colors[color][3], extraDim);
         
@@ -113,7 +122,7 @@ void RGBW::setRangeCenter(uint16_t center, uint16_t tail, uint8_t color, bool fa
 
     for (int k = center - tail; k <= center + tail; k++) { 
         if (fade) {
-            float offDim = k - travelIndex;
+            float offDim = k;
             dim = 1 / (1 + abs(offDim));
         };
 
