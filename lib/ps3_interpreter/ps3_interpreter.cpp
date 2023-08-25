@@ -154,10 +154,12 @@ void controller_handler::select(){
 
     // set brightness
     if (controller_handler::controller_toggle[D_LEFT]){
-        controller_handler::states.brightness = (controller_handler::states.brightness>0) ? controller_handler::states.brightness-0.02 : controller_handler::states.brightness;
+        controller_handler::states.brightness = (controller_handler::states.brightness>0) ? controller_handler::states.brightness-0.04 : controller_handler::states.brightness;
+        controller_handler::states.brightness = (controller_handler::states.brightness<0) ? 0 : controller_handler::states.brightness;
     }
     if (controller_handler::controller_toggle[D_RIGHT]){
-        controller_handler::states.brightness = (controller_handler::states.brightness<1) ? controller_handler::states.brightness+0.02 : controller_handler::states.brightness;
+        controller_handler::states.brightness = (controller_handler::states.brightness<1) ? controller_handler::states.brightness+0.04 : controller_handler::states.brightness;
+        controller_handler::states.brightness = (controller_handler::states.brightness>1) ? 1 : controller_handler::states.brightness;
     }
 
     // set BPM

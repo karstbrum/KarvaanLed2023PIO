@@ -98,19 +98,14 @@ void sync_states(){
   if (states.brightness != ctrl.states.brightness){
     states.brightness = ctrl.states.brightness;
     LED.setDimmer(states.brightness);
-    Bulb.setDimmer(states.brightness);
+    Bulb.setDimmer(states.brightness/4);
   }
 }
 
-
-// check if switched to controller
-void to_controller(){
-  if(controller_switch){
-    // color 14 is off
-    LED.setColor(14);
-    // staticvalue 0 is off
-    Bulb.staticValue(0);
-  }
+// sync index of bulb & led by setting to 0
+void sync_index(){
+  LED.pulseIndex = 0;
+  Bulb.pulseIndex = 0;
 }
 
 // define all auto functions
@@ -118,9 +113,15 @@ void auto_functions(){
 
   // define mode used, to switch also in random mode
   static uint8_t mode_used;
+  static uint8_t prev_mode_used;
   
   // define mode that is used
   mode_used = states.mode;
+
+  // sync if mode is different
+  if (mode_used != prev_mode_used){
+    sync_index();
+  }
 
   // switch between modes
   switch (mode_used){
@@ -132,22 +133,25 @@ void auto_functions(){
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       LED.pulseSameColor(states.color,1);
-      Bulb.pulse(1);
+      Bulb.travelSides(1);
       break;}
     case 2: {// pulse to other coler with fade
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       LED.pulseToOtherColor(1,1);
-      Bulb.pulse(1);
+      Bulb.travelSides(1);
       break;}
-    case 3: {// travel up and down wiht band of 100% pixels, 3 bulbs with fading brightness
+    case 3: {// travel up and down wiht band of 20% pixels, 3 bulbs with fading brightness
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
       int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
       uint8_t numClusters = sizeof(clusters);
-      LED.upDown(0.3, states.color, 1, 0, numClusters, clusters, 1, Direction);
-      Bulb.upDown(1, 1, 1);
+      LED.upDown(0.2, states.color, 0, 0, numClusters, clusters, 1, Direction);
+      Bulb.upDown(0, 1, 0);
       break;}   
   }
+
+  prev_mode_used = mode_used;
+
 }
 
 // Task for handling the LEDs on core 1
@@ -156,19 +160,31 @@ void LightsTaskcode( void * pvParameters ){
   // set initial states
   set_initial_states();
 
+  static bool use_controller;
+  static bool prev_use_controller;
+
   // another option to have a timed loop is to use vTaskDelayUntil(), have to look into it first
   for(;;){
     if(millis()-loopTime >= Ts){
 
       loopTime = millis();
 
+      // sync index if switched from controller 
+      if (use_controller != prev_use_controller){
+        sync_index();
+      }
+
+      prev_use_controller = use_controller;
+
       // set the lights, do first to make sampling as equidistant as possible
       if(!ctrl.use_controller){
         // call auto mode
         auto_functions();
+        use_controller = true;
       } else {
         // call control mode
         ctrl.function_mode_selector();
+        use_controller = false;
       };
 
       // states of leds are determined, now write to leds
