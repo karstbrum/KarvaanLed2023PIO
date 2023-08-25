@@ -469,6 +469,7 @@ void controller_handler::led_off(){
     };
     if (!leave_on){
         led_object->setColor(states.color, 0);
+        bulb_object->staticValue(0);
     }
 
     // reset frequency divider
@@ -673,6 +674,7 @@ void controller_callbacks(){
         } else {
             ctrl.controller_toggle[L_TRIGGER] = false;
             ctrl.controller_states[L_TRIGGER] = 0;
+            ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();
@@ -684,6 +686,7 @@ void controller_callbacks(){
         } else {
             ctrl.controller_toggle[R_TRIGGER] = false;
             ctrl.controller_states[R_TRIGGER] = 0;
+            ctrl.led_off();
         };
         ctrl.activate_controller();
         ctrl.controller_use_time = millis();

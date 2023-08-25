@@ -63,12 +63,8 @@ void Bulbgroups::setLevels() {
     groups->setBulbs();
 };
 
-void Bulbgroups::staticValue(bool on) {
-    if(on){
-        groups->setBrightnessAll(1);
-    } else {
-        groups->setBrightnessAll(0);
-    }
+void Bulbgroups::staticValue(float dim) {
+    groups->setBrightnessAll(dim);
 }
 
 // pulsing 
@@ -338,6 +334,24 @@ void Bulbgroups::flashingBulbs(bool fade, bool single, bool perSide, uint8_t fla
         }
     }
 }
+
+void Bulbgroups::setClusters(bool use_sides[], float dim){
+    // count up on starting en ending pixel per side
+    uint16_t bulbStart = 0;
+    uint16_t bulbEnd = 0;
+
+    // set all off first
+    groups->setBrightnessAll(0);
+
+    for (uint8_t k = 0; k < numSides; k++) {
+        bulbEnd = bulbStart + bulbsPerSide[k]-1;
+        if (use_sides[k]){
+            groups->setRange(bulbStart, bulbEnd, dim);
+        }
+        bulbStart = bulbEnd+1;
+    }
+}
+
 
 
 

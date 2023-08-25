@@ -63,7 +63,7 @@ void set_initial_states(){
   Bulb.setBPM(states.BPM);
   LED.setColor(states.color);
   LED.setDimmer(states.brightness);
-  Bulb.setDimmer(states.brightness);
+  Bulb.setDimmer(states.brightness/4);
   // set default states, sync with controller
   ctrl.default_settings(states.BPM, states.mode, states.color, states.brightness, 
   MINBPM, MAXBPM, MAXMODES, MAXCOLORS);
@@ -145,10 +145,9 @@ void auto_functions(){
       int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
       uint8_t numClusters = sizeof(clusters);
       LED.upDown(0.3, states.color, 1, 0, numClusters, clusters, 1, Direction);
-      // Bulb.upDown(1, 1, 1);
+      Bulb.upDown(1, 1, 1);
       break;}   
   }
-
 }
 
 // Task for handling the LEDs on core 1

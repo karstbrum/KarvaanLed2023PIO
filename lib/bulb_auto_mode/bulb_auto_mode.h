@@ -31,7 +31,7 @@ class Bulbgroups {
         void setBPM(float BPM_);
 
         // just on
-        void staticValue(bool on=true);
+        void staticValue(float dim = 1);
 
         // pulse all lights
         void pulse(bool fade = 1, float onValue = 0.4);
@@ -48,6 +48,9 @@ class Bulbgroups {
 
         // flash random bulbs
         void flashingBulbs(bool fade = 1, bool single = 0, bool perSide = 0, uint8_t flashChance = 50);
+
+        // set cluster
+        void setClusters(bool use_sides[MAXSIDES_B], float dim);
 
         // variables for pulse and updown
         float pulseIndex = 0;
