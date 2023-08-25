@@ -352,9 +352,6 @@ void Bulbgroups::setClusters(bool use_sides[], float dim){
     }
 }
 
-
-
-
 float Bulbgroups::randomFloat() {
 
     uint8_t randnum = rand() % 100;
