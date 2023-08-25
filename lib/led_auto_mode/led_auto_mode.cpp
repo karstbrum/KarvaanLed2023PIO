@@ -654,7 +654,7 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
     static bool activateCluster[MAXSIDES_L] = { };
 
     pulseIndex += ((Ts_ / 1000) * (BPM / 60)) / 2 / freqdiv; // Ts*BPS (s^1 * s^-1)
-    pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
+    //pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
     
     if (pulseIndex > 1) {
 
@@ -695,7 +695,6 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
     }
 
     for (uint16_t k = 0; k < numClusters; k++) {
-
         if (activateCluster[k]) {
 
             float travelRange = static_cast<float>(pixelsPerCluster[k]);
@@ -706,7 +705,6 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
             sinOutput = (sin(sinInput * 2 * PI - 0.5 * PI) + 1) / 2;
 
             uint16_t centerSingle = static_cast<uint16_t>(startPositions[k] * travelRange);
-
 
             uint16_t startCluster = 0;
             uint16_t center = 0;
