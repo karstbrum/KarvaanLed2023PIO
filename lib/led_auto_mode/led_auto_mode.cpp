@@ -11,7 +11,7 @@
 #include <random>
 
 
-Pixels::Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], uint8_t LEDPin_[], uint16_t Ts_) {
+Pixels::Pixels(uint8_t numSides_, uint16_t pixelsPerSide_[], uint8_t numPins_, uint8_t sidesPerPin_[], uint8_t LEDPin_[], float Ts_) {
 
     Ts = Ts_; // sampling time
 
@@ -19,12 +19,12 @@ Pixels::Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, ui
     numSides = numSides_;
 
     // pixels per pin are needed to setup the strip
-    uint8_t pixelsPerPin[numPins_] = {0};
+    uint16_t pixelsPerPin[numPins_] = {0};
 
     // total amount of pixels
     totalPixels = 0;
 
-    for (uint8_t k = 0; k < numSides_; k++) {
+    for (uint16_t k = 0; k < numSides_; k++) {
         pixelsPerSide[k] = pixelsPerSide_[k];
         totalPixels += pixelsPerSide[k];
     }
@@ -48,31 +48,15 @@ Pixels::Pixels(uint8_t numSides_, uint8_t pixelsPerSide_[], uint8_t numPins_, ui
 
 void Pixels::defineFirstColors() { //colors defined clockwise circle -> rainbow definition?
     strip->addColor(255,   0,   0,   0); //warm white 0
-    strip->addColor(  0, 255, 255, 255); //white 1
-    strip->addColor(  0, 255,   0,   0); //red 2
-    strip->addColor(  0,   0, 255,   0); //green 3
-    strip->addColor(  0,   0,   0, 255); //blue 4
-    strip->addColor(  0, 255,   0, 128); //rose 5
-    strip->addColor(  0, 255, 255,   0); //chartreuse 6
-    strip->addColor(  0,   0, 128, 255); //azure 7
-    strip->addColor(  0, 255,   0, 255); //magenta 8
-    strip->addColor(  0, 255, 200,   0); //yellow 9
-    strip->addColor(  0,   0, 255, 255); //cyan 10
-    strip->addColor(  0, 180,   0, 255); //violet 11 
-    strip->addColor(  0,   0, 255, 80); //spring green 12  
-    strip->addColor(  0, 255,  80,   0); //orange 13
-    strip->addColor(  0,   0,  0,   0); //off
-
-    //strip->addColor(0, 255, 60, 128); //14
-    //strip->addColor(0, 128, 255, 60); //15
-    //strip->addColor(0, 60, 128, 255); //16
-    //strip->addColor(0, 255, 60, 255); //17
-    //strip->addColor(0, 255, 255, 60); //18
-    //strip->addColor(0, 60, 255, 255); //19
-    //strip->addColor(0, 128, 60, 255); //20
-    //strip->addColor(0, 60, 255, 128); //21  
-    //strip->addColor(0, 255, 128, 60); //22
-
+    strip->addColor(  0, 255,   0,   0); //red 1
+    strip->addColor(  0,   0, 255,   0); //green 2
+    strip->addColor(  0,   0,   0, 255); //blue 3
+    strip->addColor(  0, 255,   0, 128); //rose 4
+    strip->addColor(  0,   0, 128, 255); //azure 5
+    strip->addColor(  0, 255, 200,   0); //yellow 6
+    strip->addColor(  0, 180,   0, 255); //violet 7 
+    strip->addColor(  0,   0, 255, 80); //spring green 8  
+    strip->addColor(  0, 255,  80,   0); //orange 9
 };
 
 void Pixels::setBPM(float BPM_) {
@@ -110,117 +94,8 @@ void Pixels::dimDown(float increment) {
 };
 
 // set color
-void Pixels::setColor(uint8_t colorIndex) {
-    strip->setColorsAll(colorIndex, 1);
-};
-
-
-// different modes
-// rainbow
-void Pixels::Rainbow(bool moving, int direction) {
-    // for definition use only full colors (0 - 255) definitions
-    // use 3 5 7 8 11 13
-    // define for outer strips
-    // check if direction is 1 or -1, if else, make it 1
-    if ((direction != 1) && (direction != -1)) {
-        direction = 1;
-    };
-
-    uint16_t startingPixel = 0;
-
-    
-    // set the whole range of pixels fit the entire color spectrum
-    // interpolate between the defined colors
-    // 6 colors defined, start and stop at the same color
-    // after every 'fixed' color, there is a range of totalPixels/6 until the next fixed color
-    // make function to make it always work, regardless of number of pixels
-
-    // if moving
-    float Ts_ = Ts;
-
-    if (moving) {
-
-        if (direction == 1) {
-            pulseIndex += (Ts_ / 1000) * (BPM / 60) / 6 / freqdiv;
-            pulseIndex = (pulseIndex > 1) ? pulseIndex - 1 : pulseIndex;
-        }
-        else if (direction == -1) {
-            pulseIndex -= (Ts_ / 1000) * (BPM / 60) / 6 / freqdiv;
-            pulseIndex = (pulseIndex < 0) ? pulseIndex + 1 : pulseIndex;
-        }
-        rainbowIndex = static_cast<uint8_t>(pulseIndex * totalPixels);
-    }
-    
-
-    // for all pixels, set the color
-    for (uint8_t k = startingPixel; k < startingPixel + totalPixels; k++) {
-
-        // cast to float to do proper calculations, also start at 0
-        float rainbowIndex_ = rainbowIndex;
-        float k_ = k - startingPixel;
-        float totalPixels_ = totalPixels;
-
-        k_ += rainbowIndex;
-
-        if (k_> totalPixels_){
-            k_ -= totalPixels_;
-        }
-
-        float relativeColor = 6 * k_ / totalPixels_;
-
-        // white state is always zero   
-        float white = 0;
-        float red, green, blue;
-
-        // red
-        if ((relativeColor > 5) || (relativeColor <= 1)) {
-            red = 255;
-        } 
-        else if ((relativeColor > 2) && (relativeColor <= 4)) {
-            red = 0;
-        }
-        else if ((relativeColor > 4) && (relativeColor <= 5)) { // ramp up
-            red = 255 * (relativeColor - 4);
-        }
-        else if ((relativeColor > 1) && (relativeColor <= 2)) { // ramp down
-            red = 255 * (2 - relativeColor); 
-        }
-
-        // green
-        if ((relativeColor > 3) && (relativeColor <= 5)) {
-            green = 255;
-        }
-        else if (relativeColor <= 2) {
-            green = 0;
-        }
-        else if ((relativeColor > 2) && (relativeColor <= 3)) { // ramp up
-            green = 255 * (relativeColor - 2);
-        }
-        else if (relativeColor > 5) { // ramp down
-            green = 255 * (6 - relativeColor);
-        }
-
-        // blue
-        if ((relativeColor > 1) && (relativeColor <= 3)) {
-            blue = 255;
-        }
-        else if (relativeColor > 4) {
-            blue = 0;
-        }
-        else if (relativeColor <= 1) { // ramp up
-            blue = 255 * (relativeColor - 0);
-        }
-        else if ((relativeColor > 3) && (relativeColor <= 4)) { // ramp down
-            blue = 255 * (4 - relativeColor);
-        }
-
-        blue *= 0.7;
-        green *= 0.7;
-       
-        strip->setColorsIndividual(k, white, red, green, blue);
-        
-    };
-
+void Pixels::setColor(uint8_t colorIndex, float dim) {
+    strip->setColorsAll(colorIndex, dim);
 };
 
 
@@ -327,7 +202,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES_L];
+    uint16_t pixelsPerCluster[MAXSIDES_L];
     if (numClusters_ == 0) {
         numClusters = numSides;
         for (uint8_t k = 0; k < numClusters; k++) {
@@ -369,7 +244,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
     float phase[numClusters];
     int direction[numClusters];
 
-    for (uint16_t k = 0; k < numClusters; k++) {
+    for (uint8_t k = 0; k < numClusters; k++) {
         if (setDirection) {
             direction[k] = direction_[k];
         }
@@ -386,7 +261,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
 
     float pulseIndexCluster;
 
-    for (uint16_t k = 0; k < numClusters; k++) {
+    for (uint8_t k = 0; k < numClusters; k++) {
 
         if (direction[k] == 1 || direction[k] == 0) {
             pulseIndexCluster = pulseIndex;
@@ -412,7 +287,7 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
                 sinOutput = 1 - sin(sinInput * 2 * PI);
             }
 
-            centerFloat = static_cast<uint8_t>(travelRange * (sinOutput));
+            centerFloat = static_cast<uint16_t>(travelRange * (sinOutput));
             
 
         }
@@ -430,24 +305,24 @@ void Pixels::upDown(float tailLength, uint8_t colorIndex, bool fastUpDown, bool 
                 sinOutput = sin((sinInput) * 2 * PI);
             }
 
-            centerFloat = static_cast<uint8_t>(travelRange * (sinOutput));
+            centerFloat = static_cast<uint16_t>(travelRange * (sinOutput));
 
         }
         else {
-            centerFloat = static_cast<uint8_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
+            centerFloat = static_cast<uint16_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
         }
 
         // endLastCluster is the end of the last Cluster
-        uint8_t startCluster = 0;
+        uint16_t startCluster = 0;
         for (uint16_t l = 0; l < k; l++) {
             startCluster += pixelsPerCluster[l];
         }
 
         // center is the center of the traveling light
-        uint8_t center = startCluster + centerFloat;
+        uint16_t center = startCluster + centerFloat;
 
-        int startLED = center - pixelsPerCluster[k] * tailLength;
-        int endLED = center + pixelsPerCluster[k] * tailLength;
+        int startLED = center - static_cast<uint16_t>(travelRange * tailLength);
+        int endLED = center + static_cast<uint16_t>(travelRange * tailLength);
 
         startLED = (startLED < startCluster) ? startCluster : startLED;
         endLED = (endLED >= (startCluster + pixelsPerCluster[k])) ? (startCluster + pixelsPerCluster[k] - 1) : endLED;
@@ -469,7 +344,7 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
     // numClusters_ defines the number of clusters defined in clusters_
     // clusters_ contains the number of consecuteve sides for the cluster
     uint8_t numClusters;
-    uint8_t pixelsPerCluster[MAXSIDES_L];
+    uint16_t pixelsPerCluster[MAXSIDES_L];
     float clusterPhase[MAXSIDES_L];
 
     if (numClusters_ == 0) {
@@ -550,7 +425,7 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
                 sinOutput = 1 - sin(sinInput * 2 * PI);
             }
 
-            leadingPixel = static_cast<uint8_t>(travelRange * (sinOutput));
+            leadingPixel = static_cast<uint16_t>(travelRange * (sinOutput));
 
         }
         else if (fastOnlyUpDown) {
@@ -567,21 +442,21 @@ void Pixels::fillUp(uint8_t colorIndex, bool fastUpDown, bool fastOnlyUpDown,
                 sinOutput = sin((sinInput) * 2 * PI);
             }
 
-            leadingPixel = static_cast<uint8_t>(travelRange * (sinOutput));
+            leadingPixel = static_cast<uint16_t>(travelRange * (sinOutput));
 
         }
         else {
-            leadingPixel = static_cast<uint8_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
+            leadingPixel = static_cast<uint16_t>(travelRange / 2 + travelRange * sin((pulseIndexCluster + phase[k]) * 2 * PI) / 2);
         }
 
         // endLastCluster is the end of the last Cluster
-        uint8_t startCluster = 0;
+        uint16_t startCluster = 0;
         for (uint16_t l = 0; l < k; l++) {
             startCluster += pixelsPerCluster[l];
         }
 
         // center is the center of the traveling light
-        uint8_t center = startCluster + leadingPixel;
+        uint16_t center = startCluster + leadingPixel;
 
         int startLED = (direction[k] == 1) ? startCluster : startCluster + leadingPixel;
         int endLED = (direction[k] == 1) ? startCluster + leadingPixel : startCluster + pixelsPerCluster[k] - 1;
@@ -861,6 +736,153 @@ void Pixels::fillBoth(uint8_t colorIndex, float startPos, float lightSize, uint8
 
 }
 
+void Pixels::setCluster(uint8_t colorIndex, bool use_sides[MAXSIDES_L]){
+
+    // count up on starting en ending pixel per side
+    uint16_t pixelStart = 0;
+    uint16_t pixelEnd = 0;
+
+    // set all off first
+    strip->setColorsAll(colorIndex, 0);
+
+    for (uint8_t k = 0; k < numSides; k++) {
+        pixelEnd = pixelStart + pixelsPerSide[k]-1;
+        if (use_sides[k]){
+            strip->setRange(pixelStart, pixelEnd, colorIndex, 1);
+        }
+        pixelStart = pixelEnd+1;
+    }
+
+}
+
+void Pixels::switchCluster(uint8_t color1, uint8_t color2, bool use_sides1[MAXSIDES_L], bool use_sides2[MAXSIDES_L]){
+
+    // count up on starting en ending pixel per side
+    uint16_t pixelStart = 0;
+    uint16_t pixelEnd = 0;
+
+    // iterate on pulse index
+    float Ts_ = Ts;
+    pulseIndex += ((Ts_ / 1000) * (BPM / 60)) / freqdiv; // Ts*BPS (s^1 * s^-1)
+    pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
+
+    bool switch_sides = (pulseIndex > 0.5) ? false : true;
+
+    // set all off first
+    strip->setColorsAll(color1, 0);
+
+    for (uint8_t k = 0; k < numSides; k++) {
+        pixelEnd = pixelStart + pixelsPerSide[k]-1;
+        if (use_sides1[k] && switch_sides){
+            strip->setRange(pixelStart, pixelEnd, color1, 1);
+        } else if (use_sides2[k] && !switch_sides) {
+            strip->setRange(pixelStart, pixelEnd, color2, 1);
+        }
+        pixelStart = pixelEnd+1;
+    }
+
+}
+
+void Pixels::travelAround(int direction, uint8_t numColors, uint8_t colors[], uint8_t numClusters, uint8_t clusters[], float cluster_locations[],  
+            float horizontal_size, float vertical_size, bool horizontal_fade, bool vertical_fade, bool use_horizontal_pos, float horizontal_pos, float vertical_pos){
+    
+    // iterate on pulse index, only needed if not manual
+    float Ts_ = Ts;
+    pulseIndex += direction * ((Ts_ / 1000) * (BPM / 60)) / freqdiv; // Ts*BPS (s^1 * s^-1)
+    pulseIndex = pulseIndex > 1 ? pulseIndex - 1 : pulseIndex;
+    pulseIndex = pulseIndex < 0 ? pulseIndex + 1 : pulseIndex;
+
+    // determine clusters
+    uint8_t pixelsPerCluster[MAXSIDES_L];
+    uint8_t sideIndex = 0;
+    for (uint8_t k = 0; k < numClusters; k++) {
+        pixelsPerCluster[k] = 0;
+        for (uint8_t l = 0; l < clusters[k]; l++) {
+            pixelsPerCluster[k] += pixelsPerSide[sideIndex];
+            sideIndex += 1;
+        }
+    }
+
+    // if using horizontal position as input, overwrite pulse index
+    if (use_horizontal_pos){
+        pulseIndex = horizontal_pos;
+    }
+
+    //set the correct and direction (direction for fastup etc.)
+    float phase[numColors];
+    for (uint8_t k = 0; k < numColors; k++) {
+        phase[k] = k/static_cast<float>(numColors);
+    }
+
+    // set all off first
+    strip->setColorsAll(colors[0], 0);
+
+    for (uint16_t k = 0; k < numColors; k++) {
+
+        float travelRange = 1;
+        float centerFloat_hor;
+        float centerFloat_ver = vertical_pos;
+
+        // value between 0 and 1
+        centerFloat_hor = pulseIndex + phase[k];
+        centerFloat_hor = (centerFloat_hor>1) ? centerFloat_hor-1 : centerFloat_hor;
+
+        // get start and end pixel
+    	uint16_t pixelStart = 0;
+        uint16_t pixelEnd = 0;
+
+        // loop through clusters
+        for (uint8_t l = 0; l < numClusters; l++){
+    
+            // end pixel update update
+            pixelEnd = pixelStart + pixelsPerCluster[l]-1;
+
+            // when centerfloat is low (<0) value or high (>1) shift location
+            float shift = 0;
+            if ((centerFloat_hor-horizontal_size/2) < 0){
+                float shift = centerFloat_hor - horizontal_size/2;
+                if (cluster_locations[l] > (1+shift)){
+                    cluster_locations[l] = cluster_locations[l]-1;
+                }
+
+            } else if ((centerFloat_hor+horizontal_size/2) > 1){
+                float shift = centerFloat_hor + horizontal_size/2 - 1;
+                if (cluster_locations[l] < (shift)){
+                    cluster_locations[l] = cluster_locations[l]+1;
+                }
+            }
+
+            // check if cluster is in range to light up,  wrapping is not needed
+            if ((cluster_locations[l] > (centerFloat_hor-horizontal_size/2)) && (cluster_locations[l] < (centerFloat_hor+horizontal_size/2))){
+
+                // determine the value of of the center position by relative position in the window, dependend on fade
+                float rel_pos_hor = (cluster_locations[l]-(centerFloat_hor-horizontal_size/2))/horizontal_size;
+                float centervalue_ver = (horizontal_fade) ? 0.5-0.5*cos(rel_pos_hor*2*PI) : 1;
+
+                // determine value of all lights in the cluster based on value of center
+                // loop through pixels in cluster and determine value
+                for (float m = 0; m < pixelsPerCluster[l]; m++){
+
+                    float rel_pixel_pos = m/static_cast<float>(pixelsPerCluster[l]-1);
+
+                    // check if pixel is in range
+                    if ((rel_pixel_pos > (centerFloat_ver-vertical_size/2)) && (rel_pixel_pos < (centerFloat_ver+vertical_size/2))){
+
+                        // determine relative position and corresponding dimmer value
+                        float rel_pos_ver = (rel_pixel_pos-(centerFloat_ver-vertical_size/2))/vertical_size;
+                        float pixelvalue_ver = (vertical_fade) ? 0.5-0.5*cos(rel_pos_ver*2*PI) : 1;
+                        strip->setColorsIndividualFixed(pixelStart+m, colors[k], pixelvalue_ver*centervalue_ver);
+
+                    }
+                }
+            }
+
+            pixelStart = pixelEnd+1;
+
+        }
+    }
+}
+
 
 // set the color
 void Pixels::activateColor() {
@@ -871,9 +893,4 @@ void Pixels::activateColor() {
 float Pixels::randomFloat() {
     uint8_t randnum = rand() % 100;
     return 0.1 + static_cast<float>(randnum) / 125;
-}
-
-// set statespace
-void Pixels::set_statespace(float fallTime, float riseTime){
-    strip->setDynamics(fallTime, riseTime, Ts);
 }

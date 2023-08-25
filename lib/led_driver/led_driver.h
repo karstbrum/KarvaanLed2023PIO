@@ -11,11 +11,13 @@
 #include <math.h>
 
 #define MAXNUMCOLORS 100
-#define MAXNUMPIXELS 500
-#define MAXSIDES 50
+#define MAXNUMPIXELS 1000
+#define MAXSIDES 100
+#define MAXPINS 5
 
 #define RISETIME 1
 #define FALLTIME 0.1
+
 
 class Strips {
 
@@ -24,10 +26,10 @@ class Strips {
         Strips();
 
         // setup properties of the class
-        void setupStrip(uint8_t LEDsPerPin, uint8_t LEDPin);
+        void setupStrip(uint16_t LEDsPerPin, uint8_t LEDPin);
 
         // define the colors
-        void setPixel(uint8_t pixel, uint32_t colorCode);
+        void setPixel(uint16_t pixel, uint32_t colorCode);
 
         // show color
         void show();
@@ -37,36 +39,12 @@ class Strips {
         Adafruit_NeoPixel* LED;
 
 };
-
-class stateSpace {
-    public:
-        stateSpace();
-        // define the dynamics
-        void setDynamics(float fallTime = 0, float riseTime = 0, float Ts = 0.1);
-        // update the states according to defined dynamics
-        void updateStates(float u, float y_max);
-
-        // output op the statespace
-        float y;
-
-    private:
-        // define state space matrices
-        // not setting the state space will yield default/direct response without dim
-        float A = 0;
-        float B = 1;
-        float C = 1;
-
-        // define states and outputs
-        float x = 0;
-        float x_prev = 0;
-
-};
  
 class RGBW {
 
     public:
         // constructor
-        RGBW(uint8_t LEDsPerPin_[], uint8_t LEDpins_[], uint8_t numPins_ = 1);
+        RGBW(uint16_t LEDsPerPin_[], uint8_t LEDpins_[], uint8_t numPins_ = 1);
 
         // define the colors
         void addColor(uint8_t W, uint8_t R, uint8_t G, uint8_t B);
@@ -79,8 +57,8 @@ class RGBW {
         void setColorsAll(uint8_t color = 0, float extraDim = 1);
 
         // set single pixel
-        void setColorsIndividual(int k, float white, float red, float green, float blue, float extraDimmer = 1);
-        void setColorsIndividualFixed(int k, uint8_t color = 0, float extraDim = 1);
+        void setColorsIndividual(uint16_t k, float white, float red, float green, float blue, float extraDimmer = 1);
+        void setColorsIndividualFixed(uint16_t k, uint8_t color = 0, float extraDim = 1);
 
         // set range of lights 
         // set start and end
@@ -90,19 +68,17 @@ class RGBW {
         // create color fading range
         void setRangeColorFade(uint16_t startLED = 0, uint16_t endLED = 1, uint8_t startColor = 0, uint8_t endColor = 1, float extraDim = 1);
 
-        void setDynamics(float fallTime = 0, float riseTime = 0, float Ts = 0.1);
-
         // colors
-        uint8_t RGBWStates[MAXNUMPIXELS][4];
+        uint16_t RGBWStates[MAXNUMPIXELS][4];
 
         float dimmer, prevDimmer;
 
         uint8_t standardColor = 0;  //index of current standard color
-        uint8_t travelIndex = 0;
         uint16_t numLEDs, Ts;
         uint8_t numOfColors = 0;
 
-        uint8_t LEDPins[MAXSIDES], LEDsPerPin[MAXSIDES];
+        uint8_t LEDPins[MAXSIDES];
+        uint16_t LEDsPerPin[MAXSIDES];
         uint8_t numPins;
 
     private:
@@ -114,9 +90,7 @@ class RGBW {
         
         Adafruit_NeoPixel* LED;
 
-        Strips strip[10];
-
-        stateSpace dynamicStates[MAXNUMPIXELS];
+        Strips strip[MAXPINS];
 
 };
 

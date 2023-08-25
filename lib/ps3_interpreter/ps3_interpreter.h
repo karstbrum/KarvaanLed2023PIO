@@ -79,9 +79,6 @@ class controller_handler {
         // set object of bulbs and leds
         void set_objects(Pixels* led_object_, Bulbgroups* bulb_object_);
 
-        // statespace checker
-        void statespace_checker(int mode_used, float fall_time, float rise_time);
-
         // define function per combination
         void cross(); // cross mode
         void square(); // square mode   
@@ -98,6 +95,9 @@ class controller_handler {
         void r_stick_press(); //all leds go from top to bottem or vice versa, random pattern
         // set controller rumble
         void rumble(uint8_t times);
+
+        // set leds off 
+        void led_off();
 
         // states struct
         struct {
@@ -127,9 +127,6 @@ class controller_handler {
         // last time controller is used
         int controller_use_time;
 
-        // check if statespace is set for mode
-        int check_statespace = -1;
-
         // define the possible combinations
         // input is row and checks if possible wiht column
         // include itself, the diagonal
@@ -148,12 +145,12 @@ class controller_handler {
          {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}, // r trigger 
          {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // l bumper
          {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // r bumper 
-         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0}, // l stick x
-         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0}, // l stick y
-         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0}, // r stick x
-         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0}, // r stick y
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}, // l stick press
-         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};// r stick press
+         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1}, // l stick x
+         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1}, // l stick y
+         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0}, // r stick x
+         {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0}, // r stick y
+         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0}, // l stick press
+         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1}};// r stick press
 
 };
 

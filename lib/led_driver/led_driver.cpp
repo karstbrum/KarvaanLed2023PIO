@@ -10,12 +10,12 @@
 Strips::Strips() {
 }
 
-void Strips::setupStrip(uint8_t LEDsPerPin, uint8_t LEDPin) {
+void Strips::setupStrip(uint16_t LEDsPerPin, uint8_t LEDPin) {
     LED = new Adafruit_NeoPixel(LEDsPerPin, LEDPin, NEO_GRBW + NEO_KHZ800);
     LED->begin();
 }
 
-void Strips::setPixel(uint8_t pixel, uint32_t colorCode){
+void Strips::setPixel(uint16_t pixel, uint32_t colorCode){
     LED->setPixelColor(pixel, colorCode);
 }
 
@@ -23,54 +23,7 @@ void Strips::show() {
     LED->show();
 }
 
-stateSpace::stateSpace() {
-};
-
-void stateSpace::setDynamics(float fallTime, float riseTime, float Ts){
-    
-    // set A and B based on fallTime and riseTime
-    // A is just quadratic decay
-    // fallTime is the time to reach 10% of initial value
-    // for unit input: A^n = 0.1, calculate n, round up to integer
-    float fallSamples = ceil(fallTime / Ts);
-    float riseSamples = floor(riseTime / Ts);
-
-    // determine A based on Samples A^n = 0.1, A = n(sqrt(0.1))
-    A = pow(FALLTIME, 1/fallSamples);
-    
-    // find rise time (full bright), simple equations which requires a small for loop or approximation
-    // b = 1 / sum(a^(p-1)) for p = 1:riseSamples
-    // for loop method, does not need to be fast since only set on mode switch
-    float sum_A = 1;
-    for (uint8_t k = 1;k < riseSamples;k++) {
-        sum_A += pow(A,k);
-    }; 
-
-    B = RISETIME/sum_A;
-
-    // do not touch C for simple system
-    C = 1;
-
-};
-
-void stateSpace::updateStates(float u, float x_max){
-
-    // basic state space
-    x = A*x_prev + B*u;
-
-    // not limited in output but in states
-    x = (x>x_max) ? x_max : x;
-
-    // output
-    y = C*x;
-
-    
-    // set previous state for next iteration
-    x_prev = x;
-
-};
-
-RGBW::RGBW(uint8_t LEDsPerPin_[], uint8_t LEDpins_[], uint8_t numPins_){
+RGBW::RGBW(uint16_t LEDsPerPin_[], uint8_t LEDpins_[], uint8_t numPins_){
 
     // get total number of LEDS
     numLEDs = 0;
@@ -117,43 +70,49 @@ void RGBW::changeAddedColor(uint8_t W, uint8_t R, uint8_t G, uint8_t B, uint8_t 
 
 void RGBW::setColorsAll(uint8_t color, float extraDim) {
 
-    for (int k = 0; k < numLEDs; k++) {
+    for (uint16_t k = 0; k < numLEDs; k++) {
 
         RGBW::setColorsIndividual(k, colors[color][0], colors[color][1], colors[color][2], colors[color][3], extraDim);
 
     };
 };
 
-void RGBW::setColorsIndividualFixed(int k, uint8_t color, float extraDim) {
+void RGBW::setColorsIndividualFixed(uint16_t k, uint8_t color, float extraDim) {
 
     RGBW::setColorsIndividual(k, colors[color][0], colors[color][1], colors[color][2], colors[color][3], extraDim);
 
 }
 
-void RGBW::setColorsIndividual(int k, float white, float red, float green, float blue, float extraDimmer) {
+void RGBW::setColorsIndividual(uint16_t k, float white, float red, float green, float blue, float extraDimmer) {
 
-    // feed the input (dimmer * extraDimmer) to the statespace as input
-    dynamicStates[k].updateStates(dimmer * extraDimmer, dimmer);
-
-    RGBWStates[k][0] = static_cast<uint8_t>(dynamicStates[k].y * white);
-    RGBWStates[k][1] = static_cast<uint8_t>(dynamicStates[k].y * red);
-    RGBWStates[k][2] = static_cast<uint8_t>(dynamicStates[k].y * green);
-    RGBWStates[k][3] = static_cast<uint8_t>(dynamicStates[k].y * blue);
+    
+    RGBWStates[k][0] = static_cast<uint8_t>(dimmer * extraDimmer * white);
+    RGBWStates[k][1] = static_cast<uint8_t>(dimmer * extraDimmer * red);
+    RGBWStates[k][2] = static_cast<uint8_t>(dimmer * extraDimmer * green);
+    RGBWStates[k][3] = static_cast<uint8_t>(dimmer * extraDimmer * blue);
 
     colorCode[k] = (RGBWStates[k][0] << 24) |
         (RGBWStates[k][1] << 16) |
         (RGBWStates[k][2] << 8) |
         RGBWStates[k][3];
 
+    // if(k==0){
+    //     Serial.print(k);
+    //     Serial.print(", ");
+    //     Serial.println(colorCode[k]);
+    // }
+    
+
+
 };
 
 
 void RGBW::setRange(uint16_t startLED, uint16_t endLED, uint8_t color, float extraDim) {
 
-    for (int k = startLED; k <= endLED; k++) { // For each pixel in range
+    for (uint16_t k = startLED; k <= endLED; k++) { // For each pixel in range
 
         RGBW::setColorsIndividual(k, colors[color][0], colors[color][1], colors[color][2], colors[color][3], extraDim);
-
+        
     };
 };
 
@@ -163,7 +122,7 @@ void RGBW::setRangeCenter(uint16_t center, uint16_t tail, uint8_t color, bool fa
 
     for (int k = center - tail; k <= center + tail; k++) { 
         if (fade) {
-            float offDim = k - travelIndex;
+            float offDim = k;
             dim = 1 / (1 + abs(offDim));
         };
 
@@ -196,7 +155,7 @@ void RGBW::setStrip() {
     // loop through states of all pixels
     uint16_t pixelIndex = 0;
 
-    for (uint8_t k = 0; k < numPins; k++) {           // for each strip      
+    for (uint8_t k = 0; k < numPins; k++) {           // for each strip   
         for (uint16_t l = 0; l < LEDsPerPin[k]; l++) {      // For each pixel in strip.
             strip[k].setPixel(l, colorCode[pixelIndex]);        //  Set pixel color 
             pixelIndex += 1;
@@ -208,11 +167,4 @@ void RGBW::setStrip() {
         strip[k].show();      //  Set strip
     };
     
-};
-
-// nested function for updating dynamics
-void RGBW::setDynamics(float fallTime, float riseTime, float Ts){
-    for (uint8_t k = 0; k < numLEDs; k++) { 
-        dynamicStates[k].setDynamics(fallTime, riseTime, Ts);
-    };
 };

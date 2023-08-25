@@ -78,7 +78,6 @@ void Bulbs::setRangeCenter(uint8_t center, uint8_t tail, bool fade) {
     };
 };
 
-
 void Bulbs::setBulbs() {
 
     //uint8_t dutyCycle;
