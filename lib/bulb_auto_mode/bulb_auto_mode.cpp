@@ -329,9 +329,6 @@ void Bulbgroups::flashingBulbs(bool fade, bool single, bool perSide, uint8_t fla
         if (selectBulb[k]) {
             groups->setBrightnessIndividual(k, dimValue);
         }
-        else {
-            Serial.print(0);
-        }
     }
 }
 
@@ -341,7 +338,7 @@ void Bulbgroups::setClusters(bool use_sides[], float dim){
     uint16_t bulbEnd = 0;
 
     // set all off first
-    groups->setBrightnessAll(0);
+    //groups->setBrightnessAll(0);
 
     for (uint8_t k = 0; k < numSides; k++) {
         bulbEnd = bulbStart + bulbsPerSide[k]-1;

@@ -275,15 +275,18 @@ void controller_handler::circle(){
     led_object->upDown(0.25, states.color, 0, 0, numClusters, clusters, 1, direction, inverse, 1, phase);
 };
 void controller_handler::l_trigger(){
-    
+    bool set_sides_bulb[] = {1, 0};
+    float l_trigger_value = static_cast<float>(controller_handler::controller_states[L_TRIGGER])/256;
+    bulb_object->setClusters(set_sides_bulb, l_trigger_value);
 };
 void controller_handler::r_trigger(){
-    
+    bool set_sides_bulb[] = {0, 1};
+    float r_trigger_value = static_cast<float>(controller_handler::controller_states[R_TRIGGER])/256;
+    bulb_object->setClusters(set_sides_bulb, r_trigger_value);
 };
 void controller_handler::l_bumper(){
     bool set_sides[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    
     if (controller_handler::controller_states[R_BUMPER] == 1){
         for(int k=0; k<sizeof(set_sides); k++){
             set_sides[k] = 1;
@@ -295,7 +298,6 @@ void controller_handler::l_bumper(){
 void controller_handler::r_bumper(){
     bool set_sides[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                         1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
     if (controller_handler::controller_states[L_BUMPER] == 1){
         for(int k=0; k<sizeof(set_sides); k++){
             set_sides[k] = 1;
@@ -462,17 +464,26 @@ void controller_handler::r_stick_press(){
 void controller_handler::led_off(){
     // always switch off if no input is toggled on
     // loop through number of inputs
-    bool leave_on = false;
+    bool leave_on_led = false;
+    bool leave_on_bulb = false;
     for(int k=0; k<INPUTS; k++){
         // if any is toggled on, this will be true
-        leave_on = leave_on || controller_toggle[k];
+        if (k!=L_TRIGGER && k!= R_TRIGGER){
+            leave_on_led = leave_on_led || controller_toggle[k];
+        } else {
+            leave_on_bulb = leave_on_bulb || controller_toggle[k];
+        }
     };
-    if (!leave_on){
+    if (!leave_on_led){
         led_object->setColor(states.color, 0);
+    }
+    if (!leave_on_bulb){
         bulb_object->staticValue(0);
     }
 
     // reset frequency divider
+    led_object->freqdiv = 1;
+    bulb_object->freqdiv = 1;
 
 }
 
