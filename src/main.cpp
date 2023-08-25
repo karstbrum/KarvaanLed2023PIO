@@ -10,7 +10,7 @@
 
 // max numbers for settings
 #define MAXCOLORS 10
-#define MAXMODES 25 // to be defined
+#define MAXMODES 16 // to be defined
 #define MINBPM 101
 #define MAXBPM 199
 
@@ -44,7 +44,12 @@ Bulbgroups* Bulb_pointer = &Bulb;
 int loopTime = 0;
 
 // time to automatically switch to auto mode in milliseconds
-int auto_switch_time = 60000;
+int auto_switch_time = 120000;
+
+// random timer
+int random_timer = 0; 
+int random_time_switch = 30000;
+
 
 // check if switched to controller
 bool controller_switch = true;
@@ -116,8 +121,16 @@ void auto_functions(){
   static uint8_t prev_mode_used;
   
   // define mode that is used
-  mode_used = states.mode;
-
+  bool select_random = (states.mode == MAXMODES) ? true : false;
+  if (select_random){
+    if (millis() - random_timer > random_time_switch){
+      mode_used = random(MAXMODES-1);
+      random_timer = millis();
+    }
+  } else{
+    mode_used = states.mode;
+  }
+  
   // sync if mode is different
   if (mode_used != prev_mode_used){
     sync_index();
@@ -168,7 +181,7 @@ void auto_functions(){
       LED.travelSides(states.color, 1, 0, 1, numClusters, clusters, 0, 1);
       Bulb.flashingBulbs(1, 1, 1);
       break;}  
-    case 6 : {// leds fill up in wave, poles with random phase updown
+    case 6 : {// leds fill up in wave, poles with phase updown
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
@@ -182,7 +195,21 @@ void auto_functions(){
       LED.fillUp(states.color, 0, 0, numClusters, clusters, 1, Direction, 1, phase_led);
       Bulb.upDown(2, 1, 0, 0, 0, Direction, 1, phase_bulb);
       break;} 
-    case 7: {// travel up and down wiht band of 20% pixels inverse, 3 bulbs with fading brightness
+    case 7 : {// leds fill up in wave, poles with phase updown
+      LED.freqdiv = 2;
+      Bulb.freqdiv = 2;
+      uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
+      int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
+      uint8_t numClusters = sizeof(clusters);
+      float phase_led[numClusters];
+      for (uint8_t k=0; k<numClusters; k++){
+        phase_led[k] = -static_cast<float>(k)/static_cast<float>(numClusters);
+      }
+      float phase_bulb[] = {0, 0.5};
+      LED.fillUp(states.color, 0, 0, numClusters, clusters, 1, Direction, 1, phase_led);
+      Bulb.upDown(2, 1, 0, 0, 0, Direction, 1, phase_bulb);
+      break;} 
+    case 8: {// travel up and down wiht band of 20% pixels inverse, 3 bulbs with fading brightness
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
       int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
       uint8_t numClusters = sizeof(clusters);
@@ -192,41 +219,41 @@ void auto_functions(){
       LED.upDown(0.2, states.color, 0, 0, numClusters, clusters, 1, Direction, true);
       Bulb.upDown(1, 1, 0, 0, true, bulbDirection);
       break;} 
-    case 8 : { // 50% chance flashing pixels, 30% flashing chance for all bulbs
+    case 9 : { // 50% chance flashing pixels, 30% flashing chance for all bulbs
       uint8_t color2 = (states.color == 0) ? color2 = 1 : states.color;
       LED.flashingPixels(states.color, color2, 30);
       Bulb.flashingBulbs(1, 0, 0, 50);
       break;}  
-    case 9 : { // wave of 1 letter with positive direction, single random flashing bulb per pole
+    case 10 : { // wave of 1 letter with positive direction, single random flashing bulb per pole
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
       LED.travelingWave(states.color, 1, 1, 0.5);
       Bulb.flashingBulbs(1, 1, 1);
       break;}
-    case 10 : { // wave of 1 letter with negative direction, single random flashing bulb per pole
+    case 11 : { // wave of 1 letter with negative direction, single random flashing bulb per pole
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
-      LED.travelingWave(states.color, 1, 1, 0.5);
+      LED.travelingWave(states.color, 1, -1, 0.5);
       Bulb.flashingBulbs(1, 1, 1);
       break;}
-    case 11: {// random 50% pole fillboth, single flashing bulb
+    case 12: {// random 50% pole fillboth, single flashing bulb
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
       uint8_t numClusters = sizeof(clusters);
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
-      LED.fillBoth(states.color, 0.5, 0.2, 100, false, numClusters, clusters, false);
+      LED.fillBoth(states.color, 0.5, 0.8, 70, false, numClusters, clusters, false);
       Bulb.flashingBulbs(1, 1, 1);
       break;}   
-    case 12: {// random 50% pole fillboth, random position, single flashing bulb
+    case 13: {// random 50% pole fillboth, random position, single flashing bulb
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
       uint8_t numClusters = sizeof(clusters);
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
-      LED.fillBoth(states.color, 0.5, 0.2, 50, true, numClusters, clusters, false);
+      LED.fillBoth(states.color, 0.5, 0.8, 50, true, numClusters, clusters, false);
       Bulb.flashingBulbs(1, 1, 1);
       break;}   
     // negative and positive fillup
-    case 13: {// random 50% pole fillboth, single flashing bulb
+    case 14: {// random 50% pole fillboth, single flashing bulb
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
       uint8_t numClusters = sizeof(clusters);
       int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
@@ -235,13 +262,13 @@ void auto_functions(){
       LED.fillUp(states.color, 0, 0, numClusters, clusters, true, Direction, false, {}, false);
       Bulb.flashingBulbs(1, 1, 1);
       break;}   
-    case 14: {// random 50% pole fillboth, random position, single flashing bulb
+    case 15: {// random 50% pole fillboth, random position, single flashing bulb
       uint8_t clusters[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2};
       uint8_t numClusters = sizeof(clusters);
       int Direction[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1};
       LED.freqdiv = 2;
       Bulb.freqdiv = 2;
-      LED.fillUp(states.color, 0, 0, numClusters, clusters, true, Direction, false, {}, false);
+      LED.fillUp(states.color, 0, 0, numClusters, clusters, true, Direction, false, {}, true);
       Bulb.flashingBulbs(1, 1, 1);
       break;}   
   }
